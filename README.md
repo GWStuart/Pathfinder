@@ -1,2 +1,2 @@
 # Pathfinder
-Pathfinding tool with A* search and Dijkstra's algorithm is implemented
+Pathfinding tool that implements and visualises A* search and Dijkstra's algorithm
