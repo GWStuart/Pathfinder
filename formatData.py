@@ -1,6 +1,7 @@
 import json
 
-inputFile = "romeRoads2.geojson"  # file to be loaded
+inputFile = "romeRoads4.geojson"  # file to be loaded
+outputFile = "output2"
 
 # open the file to be read from
 with open(inputFile) as f:
@@ -28,5 +29,10 @@ for i in range(len(data["features"])):
 result = dict(zip(keys, [ids, names, coordinates]))
 
 # write the output to a file
-with open("output.json", "w") as f:
+with open(outputFile + ".json", "w") as f:
     json.dump(result, f)
+
+with open(outputFile + ".data", "w") as f:
+    for i in range(len(ids)):
+        f.write(f"{ids[i]} {str(coordinates[i])}\n")
+
