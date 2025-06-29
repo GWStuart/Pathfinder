@@ -25,7 +25,7 @@ inputFile = args.file # file to be loaded
 
 # location of output file
 if args.output:
-    outputFile = args.output
+    outputFile = "data/" + args.output
 else:
     outputFile = inputFile[:inputFile.index(".")] + ".data"
 
@@ -84,6 +84,9 @@ for i, road in enumerate(coordinates):
         x = (lon - min_lon) * lon_scale_factor * scale
         y = (max_lat - lat) * scale # flip Y
         coordinates[i][j] = x, y
+
+print(coordinates[0])
+quit()
 
 print(f"Saving output to {outputFile}")
 
