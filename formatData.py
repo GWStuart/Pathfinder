@@ -85,12 +85,9 @@ for i, road in enumerate(coordinates):
         y = (max_lat - lat) * scale # flip Y
         coordinates[i][j] = x, y
 
-print(coordinates[0])
-quit()
-
 print(f"Saving output to {outputFile}")
 
-with open(outputFile + ".data", "w") as f:
+with open(outputFile, "w") as f:
     for i in range(len(ids)):
         f.write(f"{ids[i]} {str(coordinates[i])}\n")
 
