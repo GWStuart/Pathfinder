@@ -6,8 +6,7 @@ import random
 pygame.init()
 
 #inputFile = "data/RomeSmall.data"
-inputFile = "data/BrisbaneCentre.data"
-#inputFile = "data/RomeFull.data"
+inputFile = "data/v5.data"
 
 LENGTH, HEIGHT = 800, 600
 win = pygame.display.set_mode((LENGTH, HEIGHT))
@@ -24,7 +23,7 @@ ZOOM_DIFFERENCE_MOUSE = ZOOM_FACTOR_MOUSE - 1
 roads = []
 with open(inputFile, "r") as f:
     for line in f.readlines():
-        roads.append(eval(line[line.index(" ") + 1:-1])) # append the road
+        roads.append(eval(line[:-1])) # append the road
 
 # scale it to screen dimensions
 scale_factor = HEIGHT
@@ -39,16 +38,11 @@ cameraZoom = 1
 def get_local_coordinates(coordinates: list[int, int]):
     return (coordinates[0] - cameraX) * cameraZoom, (coordinates[1] - cameraY) * cameraZoom
 
-# accroding to GPT: 4 -> 11m, 5 -> 1.1m, 6 -> 11cm
-def round_coord(coord, digits=5):
-    return (round(coord[0], digits), round(coord[1], digits))  # (lon, lat)
-
 coord_usage = defaultdict(int)
 
 for road in roads:
     for point in road:
-        coord = round_coord(point)
-        coord_usage[coord] += 1
+        coord_usage[point] += 1
 
 intersections_set = {
     coord for coord, count in coord_usage.items()
