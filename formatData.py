@@ -8,8 +8,13 @@ This file process a given geojson file and prepares it to be rendered by the vis
 This envolves extracting only the relevant information and scaling GPS coordinates so that all
 coordinates are floating point value between 0 and 1. Additional scaling factors were needed to
 prevent distortion caused by rendering spherical GPS coordinates on a 2D screen.
-"""
 
+.data file:
+    This file contains all road segments partitioned so that each segment starts and ends at 
+    an intersection point. The first line of this file is a single number representing the total
+    number of roads. Subsequent lines represent each road and start with a number representing the
+    number of nodes in that given road.
+"""
 description = """
 Tool used to process and extract road networks for openMap geojson data.
 """
@@ -105,7 +110,7 @@ endpoints_set = {
 # start and end  points are counted as "intersection" points
 intersections_set.update(startpoints_set)
 intersections_set.update(endpoints_set)
-intersections = list(intersections_set)
+nodes = list(intersections_set)
 
 # partition the road data at intersection points
 # this ensures that each road only contains 2 intersection points (one at its start and one at its end)
@@ -113,7 +118,7 @@ partitioned_roads = []
 for road in roads:
     index = 0
     for i in range(1, len(road) - 1):
-        if road[i] in intersections:
+        if road[i] in intersections_set:
             partitioned_roads.append(road[index:i+1])
             index = i
     partitioned_roads.append(road[index:])
@@ -121,15 +126,21 @@ for road in roads:
 # save the road data
 print(f"Saving full road data to {outputFile}.data")
 with open(outputFile + ".data", "w") as f:
-    for i in range(len(partitioned_roads)):
-        f.write(f"{str(partitioned_roads[i])}\n")
+    f.write(f"{len(partitioned_roads)}\n")
+    for road in partitioned_roads:
+        f.write(f"{len(road)} {str(road)}\n")
 
-print(f"Saving road intersections to {outputFile}.intersections")
+# find all node connections
+neighbours = dict(zip(intersections_set, [list() for _ in range(len(intersections_set))]))
+for road in partitioned_roads:
+    neighbours[road[0]].append(road[-1])
+    neighbours[road[-1]].append(road[0])
 
 # save the intersection data
-with open(outputFile + ".intersections", "w") as f:
-    for i in range(len(intersections)):
-        f.write(f"{str(intersections[i])}\n")
+print(f"Saving road neighbours to {outputFile}.nodes")
+with open(outputFile + ".nodes", "w") as f:
+    for node, connections in neighbours.items():
+        f.write(f"{len(connections)} {str(node)} {str(connections)}\n")
 
 # conclude program
 print("Operation completed successfully")

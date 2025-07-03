@@ -6,7 +6,10 @@ import random
 pygame.init()
 
 #inputFile = "data/RomeSmall.data"
-inputFile = "data/v5.data"
+#inputFile = "data/v5.data"
+#inputFile = "data/BrisbaneCentre.data"
+inputFile = "data/temp.data"
+nodeFile = "data/temp.nodes"
 
 LENGTH, HEIGHT = 800, 600
 win = pygame.display.set_mode((LENGTH, HEIGHT))
@@ -22,14 +25,41 @@ ZOOM_DIFFERENCE_MOUSE = ZOOM_FACTOR_MOUSE - 1
 # load in the road data
 roads = []
 with open(inputFile, "r") as f:
+    f.readline() # skip header line
+
+    # read in each road
     for line in f.readlines():
-        roads.append(eval(line[:-1])) # append the road
+        roads.append(eval(line[line.index("["):-1]))
+
+SCALE_FACTOR = HEIGHT
+def scale_to_screen(pos):
+    return pos[0] * SCALE_FACTOR, pos[1] * SCALE_FACTOR
 
 # scale it to screen dimensions
-scale_factor = HEIGHT
 for i, road in enumerate(roads):
     for j, node in enumerate(road):
-        roads[i][j] = (roads[i][j][0] * scale_factor, roads[i][j][1] * scale_factor)
+        roads[i][j] = scale_to_screen(roads[i][j])
+
+"""
+Object used to store all intersection points in the map. Each node is uniquely identified by its pos (a tuple
+representing x,y position). All nodes are connected to one or more other nodes as specified by the connections
+list.
+"""
+class Node():
+    def __init__(self, pos, neighbours):
+        self.pos = pos
+        self.neighbours = neighbours
+
+    def __repr__(self):
+        return f"Node({self.pos})"
+
+# load in the intersection nodes
+nodes = set()
+with open(nodeFile, "r") as f:
+    for line in f.readlines():
+        pos = scale_to_screen(eval(line[line.index(" ")+1:line.index(")")+1]))
+        neighbours = list(map(scale_to_screen, eval(line[line.index("["):-1])))
+        nodes.add(Node(pos, neighbours))
 
 cameraX = 0
 cameraY = 0
@@ -37,26 +67,6 @@ cameraZoom = 1
 
 def get_local_coordinates(coordinates: list[int, int]):
     return (coordinates[0] - cameraX) * cameraZoom, (coordinates[1] - cameraY) * cameraZoom
-
-coord_usage = defaultdict(int)
-
-for road in roads:
-    for point in road:
-        coord_usage[point] += 1
-
-intersections_set = {
-    coord for coord, count in coord_usage.items()
-    if count > 1
-}
-startpoints_set = {
-    road[0] for road in roads
-}
-endpoints_set = {
-    road[-1] for road in roads
-}
-intersections_set.update(startpoints_set)
-intersections_set.update(endpoints_set)
-intersections = list(intersections_set)
 
 def on_screen(point):
     return 0 <= point[0] <= LENGTH and 0 <= point[1] <= HEIGHT
@@ -71,14 +81,9 @@ def render_screen():
             colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         pygame.draw.lines(win, colour, False, list(map(get_local_coordinates, road)), 3);
 
-#    for road in roads:
-#        coords = list(map(get_local_coordinates, road))
-#        for i in range(len(road) - 1):
-#            pygame.draw.line(win, (0, 0, 0), coords[i], coords[i+1], 3);
-
     if draw_intersections:
-        for point in intersections:
-            coord = get_local_coordinates(point)
+        for node in nodes:
+            coord = get_local_coordinates(node.pos)
             if on_screen(coord):
                 pygame.draw.circle(win, (255, 0, 0), coord, 3)
 
