@@ -53,13 +53,32 @@ class Node():
     def __repr__(self):
         return f"Node({self.pos})"
 
+# returns the node at the given position
+# if such a node does not exist then it creates one
+def get_node(pos):
+    for node in nodes:
+        if node.pos == pos:
+            return node
+
+    return Node(pos, None)
+
+def is_node(pos):
+    for node in nodes:
+        if node.pos == pos:
+            return True
+    return False
+
 # load in the intersection nodes
 nodes = set()
 with open(nodeFile, "r") as f:
     for line in f.readlines():
         pos = scale_to_screen(eval(line[line.index(" ")+1:line.index(")")+1]))
         neighbours = list(map(scale_to_screen, eval(line[line.index("["):-1])))
-        nodes.add(Node(pos, neighbours))
+        neighbour_nodes = [get_node(pos) for pos in neighbours]
+        if is_node(pos):
+            get_node(pos).neighbours = neighbour_nodes
+        else:
+            nodes.add(Node(pos, neighbour_nodes))
 
 cameraX = 0
 cameraY = 0
@@ -72,10 +91,10 @@ def on_screen(point):
     return 0 <= point[0] <= LENGTH and 0 <= point[1] <= HEIGHT
 
 def render_screen():
-    win.fill((255, 255, 255))
+    win.fill((40, 40, 40))
 
     random.seed(0)
-    colour = (0, 0, 0)
+    colour = (220, 220, 220)
     for road in roads:
         if randomise_road_colour:
             colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -86,6 +105,15 @@ def render_screen():
             coord = get_local_coordinates(node.pos)
             if on_screen(coord):
                 pygame.draw.circle(win, (255, 0, 0), coord, 3)
+
+    if closest:
+        pos = get_local_coordinates(closest.pos)
+        pygame.draw.circle(win, (255, 154, 65), pos, 5)
+        for neighbour in closest.neighbours:
+            neighbour_pos = get_local_coordinates(neighbour.pos)
+            pygame.draw.line(win, (255, 154, 65), pos, neighbour_pos, 3);
+
+closest = None
 
 mouse_down = False
 draw_intersections = False
@@ -132,6 +160,14 @@ while run:
             cameraY += mouse[1] / cameraZoom * ZOOM_DIFFERENCE_MOUSE * direction
 
             render_screen()
+            render_screen()
+        if event.type == pygame.MOUSEMOTION:
+            # find the closest node
+            global_mouse = (cameraX + event.pos[0] / cameraZoom, 
+                            cameraY + event.pos[1] / cameraZoom)
+            distances = map(lambda node: math.dist(node.pos, global_mouse), nodes)
+            node = min(zip(nodes, distances), key=lambda x: x[1])[0]
+            closest = node
             render_screen()
 
     if mouse_down:
