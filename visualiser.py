@@ -55,12 +55,18 @@ class Node():
 
 # returns the node at the given position
 # if such a node does not exist then it creates one
-def get_node(pos):
+def get_node_safe(pos):
     for node in nodes:
         if node.pos == pos:
             return node
 
     return Node(pos, None)
+
+def get_node(pos):
+    for node in nodes:
+        if node.pos == pos:
+            return node
+    print("shouldn't happen")
 
 def is_node(pos):
     for node in nodes:
@@ -74,9 +80,9 @@ with open(nodeFile, "r") as f:
     for line in f.readlines():
         pos = scale_to_screen(eval(line[line.index(" ")+1:line.index(")")+1]))
         neighbours = list(map(scale_to_screen, eval(line[line.index("["):-1])))
-        neighbour_nodes = [get_node(pos) for pos in neighbours]
+        neighbour_nodes = [get_node_safe(pos) for pos in neighbours]
         if is_node(pos):
-            get_node(pos).neighbours = neighbour_nodes
+            get_node_safe(pos).neighbours = neighbour_nodes
         else:
             nodes.add(Node(pos, neighbour_nodes))
 
@@ -98,6 +104,8 @@ def render_screen():
     for road in roads:
         if randomise_road_colour:
             colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        if closest and get_node(road[0]) in closest.neighbours and get_node(road[-1]) in closest.neighbours:
+            colour = (255, 0, 0)
         pygame.draw.lines(win, colour, False, list(map(get_local_coordinates, road)), 3);
 
     if draw_intersections:
