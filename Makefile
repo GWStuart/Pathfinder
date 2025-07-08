@@ -1,20 +1,19 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic
-LDFLAGS = -lSDL3 -lm -lcjson
+CFLAGS += $(shell pkg-config --cflags sdl3)
+LDFLAGS = -lSDL3 -lm
+
+TARGETS = vis
 
 .DEFAULT_GOAL := all
-TARGETS = loadData
 
-#pathfinder:
-#	$(CC) pathfinder.c $(shell pkg-config --cflags --libs sdl3) -lm -o $@
+all: vis loadData
 
-all: loadData
-#pathfinder
-
-#pathfinder: pathfinder.c
+vis: cvisualiser.c
+	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 loadData: loadData.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+	$(CC) $< -o $@
 
 clean:
 	rm -f $(TARGETS) *.o

@@ -139,8 +139,9 @@ for road in partitioned_roads:
 # save the intersection data
 print(f"Saving road neighbours to {outputFile}.nodes")
 with open(outputFile + ".nodes", "w") as f:
+    f.write(f"{len(neighbours)}\n")
     for node, connections in neighbours.items():
-        f.write(f"{len(connections)} {str(node)} {str(connections)}\n")
+        f.write(f"{str(node)} {str(connections)}\n")
 
 # conclude program
 print("Operation completed successfully")
