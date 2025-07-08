@@ -67,10 +67,37 @@ char* move_to_char(char* string, char character) {
     return string;
 }
 
+// also assumes character is in string
+int index_of(char* string, char character) {
+    int i = 0;
+    while (string[i] != character) {
+        i++;
+    }
+    return i;
+}
+
+char* split_string(char* string, char character) {
+    while (string[0] != character) {
+        string++;
+    }
+    string[0] = '\0';
+    string++;
+    return string;
+}
+
 Pos extract_pos(char* string) {
-    char* abc = move_to_char(string, '(');
-    printf("%s", abc);
-    return (Pos){1, 3};
+    char* num1String = move_to_char(string, '(');
+    char* num2String = split_string(num1String, ',');
+
+    num2String++; // skip space character
+    num2String[index_of(num2String, ')')] = '\0';
+
+    // convert the strings to doubles
+    double num1 = atof(num1String);
+    double num2 = atof(num2String);
+
+    // return the position struct
+    return (Pos){num1, num2};
 }
 
 int load_nodes(char* filename, Node** nodes) {
