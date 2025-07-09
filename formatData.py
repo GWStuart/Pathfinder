@@ -131,10 +131,17 @@ with open(outputFile + ".data", "w") as f:
         f.write(f"{len(road)} {str(road)}\n")
 
 # find all node connections
-neighbours = dict(zip(intersections_set, [list() for _ in range(len(intersections_set))]))
+neighbours = dict(zip(nodes, [list() for _ in range(len(intersections_set))]))
 for road in partitioned_roads:
-    neighbours[road[0]].append(road[-1])
-    neighbours[road[-1]].append(road[0])
+    neighbours[road[0]].append(nodes.index(road[-1]))
+    neighbours[road[-1]].append(nodes.index(road[0]))
+
+#    neighbours[road[0]].append(road[-1])
+#    neighbours[road[-1]].append(road[0])
+
+
+#for node, connections in neighbours.items():
+#    print(node, connections)
 
 # save the intersection data
 print(f"Saving road neighbours to {outputFile}.nodes")
