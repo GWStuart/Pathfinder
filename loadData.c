@@ -3,40 +3,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "loadData.h"
+
 #define MAX_BUFFER_SIZE 1024
 
-// holds a coorrdinate position
-typedef struct {
-    double x;
-    double y;
-} Pos;
-
-/* 
- * struct that holds each node in the road network
- * pos: the coordinate position of the node
- * numNeighbours: the total number of neighbouring nodes
- * neighbours: an array containing all nodes that neighbour the given node
- */
-typedef struct Node {
-    Pos pos;
-    int numNeighbours;
-    struct Node** neighbours;
-} Node;
-
-/*
- * struct that holds road data. All roads are uniquely defined by their start and
- * end nodes.
- * start: the node of the starting point of the road
- * end: the node of the end point of the road
- * path: array of coordinate positions that define the road path
- */
-typedef struct {
-    Node start;
-    Node end;
-    Pos* path;
-} Road;
-
-// helper function that prints the given node in a nice format
 void print_node(Node node, bool newline) {
     printf("Node(%lf, %lf, neighbours=%d)", node.pos.x, node.pos.y, 
             node.numNeighbours);
@@ -47,7 +17,6 @@ void print_node(Node node, bool newline) {
     }
 }
 
-// longer version of print_node function. Also shows neighbour positions
 void print_node_long(Node node) {
     printf("Node(%lf, %lf, [", node.pos.x, node.pos.y);
 
@@ -62,7 +31,7 @@ void print_node_long(Node node) {
 // counts the number of occurences of the specified character in the string
 int count_occurences(char* string, char character) {
     int count = 0;
-    for (int i=0; i<strlen(string); i++) {
+    for (size_t i=0; i<strlen(string); i++) {
         if (string[i] == character) {
             count++;
         }
@@ -157,12 +126,6 @@ void populate_neighbours(char* string, Node* node, Node** nodes) {
     node->numNeighbours = numNeighbours;
 }
 
-/* load_nodes()
- * ------------
- * load the nodes array using data from the specified filename
- * filename: the filename to be loaded
- * nodes: pointer to where the nodes array should be stored
- */
 int load_nodes(char* filename, Node** nodes) {
     FILE* file = fopen(filename, "r");
 
@@ -183,16 +146,4 @@ int load_nodes(char* filename, Node** nodes) {
     }
 
     return numNodes;
-}
-
-int main() {
-    // populate the nodes array
-    Node* nodes;
-    int numNodes = load_nodes("data/no.nodes", &nodes);
-
-    // print the nodes out to be checked visually
-    for (int i=0; i<numNodes; i++) {
-        //print_node(nodes[i], true);
-        print_node_long(nodes[i]);
-    }
 }

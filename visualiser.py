@@ -77,8 +77,9 @@ def is_node(pos):
 # load in the intersection nodes
 nodes = set()
 with open(nodeFile, "r") as f:
+    f.readline()
     for line in f.readlines():
-        pos = scale_to_screen(eval(line[line.index(" ")+1:line.index(")")+1]))
+        pos = scale_to_screen(eval(line[:line.index(")")+1]))
         neighbours = list(map(scale_to_screen, eval(line[line.index("["):-1])))
         neighbour_nodes = [get_node_safe(pos) for pos in neighbours]
         if is_node(pos):
