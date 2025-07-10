@@ -19,7 +19,8 @@
 
 // define SDL colours
 SDL_Color BG = {0x28, 0x28, 0x28, 0xff};
-SDL_Color WHITE = {0xff, 0xff, 0xff, 0xff};
+SDL_FColor WHITE = {0xff, 0xff, 0xff, 0xff};
+SDL_Color RED = {0xff, 0x00, 0x00, 0xff};
 
 typedef struct {
     int x;
@@ -27,32 +28,17 @@ typedef struct {
     double zoom;
 } Camera;
 
-void draw_circle(SDL_Renderer* renderer, Pos pos, int r) {
-    // rect method (FPS 12xx)
-    //SDL_FRect rect = (SDL_FRect){pos.x*600 - r, pos.y*600 - r, r*2, r*2};
-    //SDL_RenderFillRect(renderer, &rect);
-
-    // distance from origin method (FPS 5XX to 6XX)
-//    int px = pos.x * 600;
-//    int py = pos.y * 600;
-//    int r2 = pow(r, 2);
-//    for (int x = px - r; x <= px + r; x++) {
-//        for (int y = py - r; y <= py + r; y++) {
-//            if (pow(x - px, 2) + pow(y - py, 2) < r2) {
-//                SDL_RenderPoint(renderer, x, y);
-//            }
-//        }
-//    }
-
-    // vertical line method
+/* draw_point()
+ * function used to draw small points on the screen at the specified position
+ * renderer: the renderer to use
+ * pos: the position struct at which to render the point
+ */
+void draw_point(SDL_Renderer* renderer, Pos pos) {
     int px = pos.x * 600;
     int py = pos.y * 600;
-    int r2 = pow(r, 2);
-    for (int x = px - r; x <= px + r; x++) {
-        int dy = sqrt(r2 - pow(x - px, 2));
-        SDL_RenderLine(renderer, x, py - dy, x, py + dy);
-    }
 
+    SDL_FRect rect = (SDL_FRect){px - 1, py - 1, 2, 2};
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void render_screen(SDL_Renderer* renderer, Node* nodes, int numNodes, 
@@ -66,12 +52,12 @@ void render_screen(SDL_Renderer* renderer, Node* nodes, int numNodes,
     Node node;
     for (int i=0; i<numNodes; i++) {
         node = nodes[i];
-        draw_circle(renderer, node.pos, 5);
+        draw_point(renderer, node.pos);
     }
 
     // render FPS count
     SDL_Surface* textSurface = TTF_RenderText_Blended(font, fpsText, 
-            strlen(fpsText), WHITE);
+            strlen(fpsText), RED);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, 
             textSurface);
     SDL_FRect textRect = {10, 10, textSurface->w, textSurface->h};
@@ -85,8 +71,8 @@ void render_screen(SDL_Renderer* renderer, Node* nodes, int numNodes,
 int main() {
     // load in the nodes array
     Node* nodes;
-    int numNodes = load_nodes("data/no.nodes", &nodes);
-    //int numNodes = load_nodes("data/RomeFull.nodes", &nodes);
+    //int numNodes = load_nodes("data/no.nodes", &nodes);
+    int numNodes = load_nodes("data/RomeFull.nodes", &nodes);
 
     // initialise the SDL window
     SDL_Init(SDL_INIT_VIDEO);
@@ -102,7 +88,7 @@ int main() {
     Uint64 now = SDL_GetPerformanceCounter();
     Uint64 last = now;
     double deltaTime = 0;
-    double fps = 0;
+    int fps = 0;
     double fpsTimer = 0;
     int frameCounter = 0;
     char fpsText[16];
@@ -132,7 +118,7 @@ int main() {
         // only update FPS after given elapsed time
         if (fpsTimer >= 0.2) {
             fps = frameCounter / fpsTimer;
-            snprintf(fpsText, sizeof(fpsText), "FPS: %.2f", fps);
+            snprintf(fpsText, sizeof(fpsText), "FPS: %d", fps);
 
             fpsTimer = 0;
             frameCounter = 0;
