@@ -31,7 +31,7 @@ inputFile = args.file # file to be loaded
 
 # location of output file
 if args.output:
-    outputFile = "data/" + args.output
+    outputFile = "assets/data/" + args.output
 else:
     outputFile = inputFile[:inputFile.index(".")]
 
@@ -124,11 +124,13 @@ for road in roads:
     partitioned_roads.append(road[index:])
 
 # save the road data
-print(f"Saving full road data to {outputFile}.data")
-with open(outputFile + ".data", "w") as f:
+print(f"Saving full road data to {outputFile}.roads")
+with open(outputFile + ".roads", "w") as f:
     f.write(f"{len(partitioned_roads)}\n")
     for road in partitioned_roads:
-        f.write(f"{len(road)} {str(road)}\n")
+        node1 = nodes.index(road[0]);
+        node2 = nodes.index(road[-1]);
+        f.write(f"{node1} {node2} {str(road)}\n")
 
 # find all node connections
 neighbours = dict(zip(nodes, [list() for _ in range(len(intersections_set))]))

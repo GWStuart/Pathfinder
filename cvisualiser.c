@@ -71,8 +71,8 @@ void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes,
 int main() {
     // load in the nodes array
     Node* nodes;
-    //int numNodes = load_nodes("data/no.nodes", &nodes);
-    int numNodes = load_nodes("data/RomeFull.nodes", &nodes);
+    //int numNodes = load_nodes("assets/data/no.nodes", &nodes);
+    int numNodes = load_nodes("assets/data/RomeFull.nodes", &nodes);
 
     // initialise the SDL window
     SDL_Init(SDL_INIT_VIDEO);

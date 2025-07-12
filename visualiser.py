@@ -8,8 +8,8 @@ pygame.init()
 #inputFile = "data/RomeSmall.data"
 #inputFile = "data/v5.data"
 #inputFile = "data/BrisbaneCentre.data"
-inputFile = "data/temp.data"
-nodeFile = "data/temp.nodes"
+inputFile = "assets/data/temp.data"
+nodeFile = "assets/data/temp.nodes"
 
 LENGTH, HEIGHT = 800, 600
 win = pygame.display.set_mode((LENGTH, HEIGHT))
@@ -222,8 +222,6 @@ while run:
     fps_text = font.render(f"FPS: {int(fps)}", True, (255, 255, 255))
     pygame.draw.rect(win, (0, 0, 0), (0, 0, 50, 18))
     win.blit(fps_text, (3, 3))
-
-    print(cameraX, cameraY)
 
     pygame.display.update()
 
