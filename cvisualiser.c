@@ -14,8 +14,9 @@
 
 // define camera constants
 #define PAN_SPEED 5
-#define ZOOM_FACTOR 1.01
-#define ZOOM_FACTOR_MOUSE 1.1
+#define ZOOM_FACTOR 1.1
+#define ZOOM_DIFF ZOOM_FACTOR - 1
+#define INIT_SCALE WIDTH
 
 // define SDL colours
 SDL_Color BG = {0x28, 0x28, 0x28, 0xff};
@@ -23,26 +24,31 @@ SDL_FColor WHITE = {0xff, 0xff, 0xff, 0xff};
 SDL_Color RED = {0xff, 0x00, 0x00, 0xff};
 
 typedef struct {
-    int x;
-    int y;
+    double x;
+    double y;
     double zoom;
 } Camera;
+
+// convert a global coordinate to a local coordinate
+SDL_Point get_local(Camera camera, Pos pos) {
+    return (SDL_Point){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
+                       (pos.y*INIT_SCALE - camera.y) * camera.zoom};
+}
 
 /* draw_point()
  * function used to draw small points on the screen at the specified position
  * renderer: the renderer to use
  * pos: the position struct at which to render the point
  */
-void draw_point(SDL_Renderer* renderer, Pos pos) {
-    int px = pos.x * 600;
-    int py = pos.y * 600;
+void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
+    SDL_Point local = get_local(camera, pos);
+    SDL_FRect rect = (SDL_FRect){local.x - 1, local.y - 1, 2, 2};
 
-    SDL_FRect rect = (SDL_FRect){px - 1, py - 1, 2, 2};
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void render_screen(SDL_Renderer* renderer, Node* nodes, int numNodes, 
-        char* fpsText, TTF_Font* font) {
+void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes, 
+        int numNodes, char* fpsText) {
     // fill screen
     SDL_SetRenderDrawColor(renderer, BG.r, BG.g, BG.b, BG.a);
     SDL_RenderClear(renderer);
@@ -52,17 +58,11 @@ void render_screen(SDL_Renderer* renderer, Node* nodes, int numNodes,
     Node node;
     for (int i=0; i<numNodes; i++) {
         node = nodes[i];
-        draw_point(renderer, node.pos);
+        draw_point(renderer, camera, node.pos);
     }
 
     // render FPS count
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, fpsText, 
-            strlen(fpsText), RED);
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, 
-            textSurface);
-    SDL_FRect textRect = {10, 10, textSurface->w, textSurface->h};
-    SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
-    SDL_DestroyTexture(textTexture);
+    SDL_RenderDebugText(renderer, 10, 10, fpsText);
 
     // update the display
     SDL_RenderPresent(renderer);
@@ -82,7 +82,10 @@ int main() {
     //SDL_SetWindowFullscreen(window, true); // uncomment for fullscreen
 
     // setup fonts
-    TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", 20);
+    //TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", 20);
+
+    // Initialise the camera
+    Camera camera = (Camera){0, 0, 1};
 
     // keep track of FPS count
     Uint64 now = SDL_GetPerformanceCounter();
@@ -94,6 +97,7 @@ int main() {
     char fpsText[16];
 
     SDL_Event event;
+    bool mouseDown = false; // keep track of mouse state
 
     bool run = true;
     while (run) {
@@ -104,6 +108,39 @@ int main() {
             // check for key presses
             else if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_Q) run = false; // q key quits
+            }
+
+            // check for mouse clicks
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                mouseDown = true;
+            }
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                mouseDown = false;
+            }
+
+            // check for mouse motion
+            else if (event.type == SDL_EVENT_MOUSE_MOTION && mouseDown) {
+                camera.x -= event.motion.xrel / camera.zoom;
+                camera.y -= event.motion.yrel / camera.zoom;
+            }
+
+            // check for mouse wheel events
+            else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+                if (event.wheel.y == 0) continue;
+
+                float mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+
+                int direction = 1;
+                if (event.wheel.y > 0) { // zoom in
+                    camera.zoom *= ZOOM_FACTOR;
+                } else if (event.wheel.y != 0) { // zoom out
+                    direction = -1;
+                    camera.zoom /= ZOOM_FACTOR;
+                }
+
+                camera.x += mouseX / camera.zoom * (ZOOM_FACTOR-1) * direction;
+                camera.y += mouseY / camera.zoom * (ZOOM_FACTOR-1) * direction;
             }
         }
 
@@ -124,6 +161,6 @@ int main() {
             frameCounter = 0;
         }
 
-        render_screen(renderer, nodes, numNodes, fpsText, font);
+        render_screen(renderer, camera, nodes, numNodes, fpsText);
     }
 }

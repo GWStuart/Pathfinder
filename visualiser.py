@@ -169,7 +169,6 @@ while run:
             cameraY += mouse[1] / cameraZoom * ZOOM_DIFFERENCE_MOUSE * direction
 
             render_screen()
-            render_screen()
         if event.type == pygame.MOUSEMOTION:
             # find the closest node
             global_mouse = (cameraX + event.pos[0] / cameraZoom, 
@@ -223,6 +222,8 @@ while run:
     fps_text = font.render(f"FPS: {int(fps)}", True, (255, 255, 255))
     pygame.draw.rect(win, (0, 0, 0), (0, 0, 50, 18))
     win.blit(fps_text, (3, 3))
+
+    print(cameraX, cameraY)
 
     pygame.display.update()
 
