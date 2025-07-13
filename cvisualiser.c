@@ -48,17 +48,25 @@ void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
 }
 
 void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes, 
-        int numNodes, char* fpsText) {
+        int numNodes, Road* roads, int numRoads, char* fpsText) {
     // fill screen
     SDL_SetRenderDrawColor(renderer, BG.r, BG.g, BG.b, BG.a);
     SDL_RenderClear(renderer);
 
-    // render the nodes
+    // render the roads
     SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    Road road;
+    SDL_Point start, end;
+    for (int i=0; i<numRoads; i++) {
+        start = get_local(camera, roads[i].start.pos);
+        end = get_local(camera, roads[i].end.pos);
+        SDL_RenderLine(renderer, start.x, start.y, end.x, end.y);
+    }
+
+    // render the nodes
     Node node;
     for (int i=0; i<numNodes; i++) {
-        node = nodes[i];
-        draw_point(renderer, camera, node.pos);
+        draw_point(renderer, camera, nodes[i].pos);
     }
 
     // render FPS count
@@ -73,6 +81,14 @@ int main() {
     Node* nodes;
     //int numNodes = load_nodes("assets/data/no.nodes", &nodes);
     int numNodes = load_nodes("assets/data/RomeFull.nodes", &nodes);
+
+    // load the roads array
+    Road* roads;
+    int numRoads = load_roads("assets/data/RomeFull.roads", nodes, &roads);
+
+    for (int i=0; i<numRoads; i++) { print_road(roads[i], true); }
+
+    return 0;
 
     // initialise the SDL window
     SDL_Init(SDL_INIT_VIDEO);
@@ -161,6 +177,7 @@ int main() {
             frameCounter = 0;
         }
 
-        render_screen(renderer, camera, nodes, numNodes, fpsText);
+        render_screen(renderer, camera, nodes, numNodes, roads, numRoads, 
+                fpsText);
     }
 }

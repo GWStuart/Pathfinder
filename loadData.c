@@ -5,7 +5,7 @@
 
 #include "loadData.h"
 
-#define MAX_BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 8192
 
 void print_node(Node node, bool newline) {
     printf("Node(%lf, %lf, neighbours=%d)", node.pos.x, node.pos.y, 
@@ -146,4 +146,78 @@ int load_nodes(char* filename, Node** nodes) {
     }
 
     return numNodes;
+}
+
+void print_road(Road road, bool newline) {
+    printf("Road(from <%lf,%lf> to <%lf,%lf>)\n", road.start.pos.x,
+            road.start.pos.x, road.end.pos.x, road.end.pos.y);
+
+    printf("Num paths: %d\n", road.pathCount);
+//    for (int i=0; i<road.pathCount; i++) {
+//        printf("<%lf,%lf>", road.path[i].x, road.path[i].y);
+//    }
+//    printf("\n");
+
+//    // print a newline if required
+//    if (newline) {
+//        printf("\n");
+//    }
+}
+
+/* load_path()
+ * ---------------------
+ * loads in the path nodes from the given string and adds them to the specified
+ * road.
+ * string: the string from which the information is to be extracted
+ * road: the road associated with the path data
+ */
+void load_path(char* string, Road* road) {
+    int numCoords = count_occurences(string, '(');
+
+    Pos* coords = malloc(sizeof(Pos) * numCoords);
+    for (int i=0; i<numCoords; i++) {
+        Pos pos;
+        extract_pos(string, &pos);
+        coords[i] = pos;
+    }
+
+    // set the road data
+    road->pathCount = numCoords;
+    road->path = coords;
+}
+
+int load_roads(char* filename, Node* nodes, Road** roads) {
+    FILE* file = fopen(filename, "r");
+
+    char buffer[8192];
+
+    // extract the number of roads specified by the file
+    fgets(buffer, sizeof(buffer), file);
+    int numRoads = atoi(buffer);
+
+    // generate the road array
+    *roads = (Road*)malloc(sizeof(Road) * numRoads);
+
+    // numRoads = 14988
+
+    int i = 0;
+    while (fgets(buffer, sizeof(buffer), file)) {
+        char* string2 = split_string(buffer, ' ');
+        char* path = split_string(string2, ' ');
+
+        int startIndex = atoi(buffer);
+        int endIndex = atoi(string2);
+
+        (*roads)[i].start = nodes[startIndex];
+        (*roads)[i].end = nodes[endIndex];
+
+        // load the path
+        load_path(path, &(*roads)[i]);
+
+        //print_road((*roads)[i], true);
+
+        i++;
+    }
+
+    return numRoads;
 }
