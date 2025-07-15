@@ -29,9 +29,22 @@ typedef struct {
     double zoom;
 } Camera;
 
+typedef struct {
+    SDL_Renderer* renderer;
+    Camera camera;
+    bool showNodes;
+    bool showHighlihts;
+} Renderer;
+
 // convert a global coordinate to a local coordinate
 SDL_Point get_local(Camera camera, Pos pos) {
     return (SDL_Point){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
+                       (pos.y*INIT_SCALE - camera.y) * camera.zoom};
+}
+
+// convert a global coordinate to a local coordinate
+SDL_FPoint get_local_float(Camera camera, Pos pos) {
+    return (SDL_FPoint){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
                        (pos.y*INIT_SCALE - camera.y) * camera.zoom};
 }
 
@@ -47,6 +60,19 @@ void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+/* draw_road()
+ * function used to draw the given road
+ * renderer: the renderer to use
+ * pos: the position struct at which to render the point
+ */
+void draw_road(SDL_Renderer* renderer, Camera camera, Road road) {
+    SDL_FPoint points[road.pathCount];
+    for (int i=0; i<road.pathCount; i++) {
+        points[i] = get_local_float(camera, road.path[i]);
+    }
+    SDL_RenderLines(renderer, points, road.pathCount);
+}
+
 void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes, 
         int numNodes, Road* roads, int numRoads, char* fpsText) {
     // fill screen
@@ -55,19 +81,15 @@ void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes,
 
     // render the roads
     SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
-    Road road;
-    SDL_Point start, end;
     for (int i=0; i<numRoads; i++) {
-        start = get_local(camera, roads[i].start.pos);
-        end = get_local(camera, roads[i].end.pos);
-        SDL_RenderLine(renderer, start.x, start.y, end.x, end.y);
+        draw_road(renderer, camera, roads[i]);
     }
 
     // render the nodes
-    Node node;
-    for (int i=0; i<numNodes; i++) {
-        draw_point(renderer, camera, nodes[i].pos);
-    }
+//    SDL_SetRenderDrawColor(renderer, RED.r, RED.g, RED.b, RED.a);
+//    for (int i=0; i<numNodes; i++) {
+//        draw_point(renderer, camera, nodes[i].pos);
+//    }
 
     // render FPS count
     SDL_RenderDebugText(renderer, 10, 10, fpsText);
@@ -80,15 +102,13 @@ int main() {
     // load in the nodes array
     Node* nodes;
     //int numNodes = load_nodes("assets/data/no.nodes", &nodes);
-    int numNodes = load_nodes("assets/data/RomeFull.nodes", &nodes);
+    //int numNodes = load_nodes("assets/data/RomeFull.nodes", &nodes);
+    int numNodes = load_nodes("assets/data/Brisbane.nodes", &nodes);
 
     // load the roads array
     Road* roads;
-    int numRoads = load_roads("assets/data/RomeFull.roads", nodes, &roads);
-
-    for (int i=0; i<numRoads; i++) { print_road(roads[i], true); }
-
-    return 0;
+    //int numRoads = load_roads("assets/data/RomeFull.roads", nodes, &roads);
+    int numRoads = load_roads("assets/data/Brisbane.roads", nodes, &roads);
 
     // initialise the SDL window
     SDL_Init(SDL_INIT_VIDEO);
@@ -111,6 +131,9 @@ int main() {
     double fpsTimer = 0;
     int frameCounter = 0;
     char fpsText[16];
+
+    // move this later
+    //Renderer renderer = (Renderer){renderer, camera, true, true};
 
     SDL_Event event;
     bool mouseDown = false; // keep track of mouse state

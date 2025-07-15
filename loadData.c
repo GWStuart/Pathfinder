@@ -7,6 +7,15 @@
 
 #define MAX_BUFFER_SIZE 8192
 
+void print_pos(Pos pos, bool newline) {
+    printf("(%lf, %lf)", pos.x, pos.y);
+
+    // print a newline if required
+    if (newline) {
+        printf("\n");
+    }
+}
+
 void print_node(Node node, bool newline) {
     printf("Node(%lf, %lf, neighbours=%d)", node.pos.x, node.pos.y, 
             node.numNeighbours);
@@ -152,16 +161,15 @@ void print_road(Road road, bool newline) {
     printf("Road(from <%lf,%lf> to <%lf,%lf>)\n", road.start.pos.x,
             road.start.pos.x, road.end.pos.x, road.end.pos.y);
 
-    printf("Num paths: %d\n", road.pathCount);
-//    for (int i=0; i<road.pathCount; i++) {
-//        printf("<%lf,%lf>", road.path[i].x, road.path[i].y);
-//    }
-//    printf("\n");
+    printf("Num paths: %d\nPath: ", road.pathCount);
+    for (int i=0; i<road.pathCount; i++) {
+        printf("<%lf,%lf> ", road.path[i].x, road.path[i].y);
+    }
 
-//    // print a newline if required
-//    if (newline) {
-//        printf("\n");
-//    }
+    // print a newline if required
+    if (newline) {
+        printf("\n");
+    }
 }
 
 /* load_path()
@@ -174,10 +182,11 @@ void print_road(Road road, bool newline) {
 void load_path(char* string, Road* road) {
     int numCoords = count_occurences(string, '(');
 
+    // extract all points from the string
     Pos* coords = malloc(sizeof(Pos) * numCoords);
     for (int i=0; i<numCoords; i++) {
         Pos pos;
-        extract_pos(string, &pos);
+        string = extract_pos(string, &pos);
         coords[i] = pos;
     }
 
@@ -198,8 +207,6 @@ int load_roads(char* filename, Node* nodes, Road** roads) {
     // generate the road array
     *roads = (Road*)malloc(sizeof(Road) * numRoads);
 
-    // numRoads = 14988
-
     int i = 0;
     while (fgets(buffer, sizeof(buffer), file)) {
         char* string2 = split_string(buffer, ' ');
@@ -213,8 +220,6 @@ int load_roads(char* filename, Node* nodes, Road** roads) {
 
         // load the path
         load_path(path, &(*roads)[i]);
-
-        //print_road((*roads)[i], true);
 
         i++;
     }
