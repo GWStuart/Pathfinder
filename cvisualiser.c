@@ -31,10 +31,10 @@ typedef struct {
 
 typedef struct {
     SDL_Renderer* renderer;
-    Camera camera;
+    Camera* camera;
     bool showNodes;
     bool showHighlihts;
-} Renderer;
+} Display;
 
 // convert a global coordinate to a local coordinate
 SDL_Point get_local(Camera camera, Pos pos) {
@@ -73,29 +73,35 @@ void draw_road(SDL_Renderer* renderer, Camera camera, Road road) {
     SDL_RenderLines(renderer, points, road.pathCount);
 }
 
-void render_screen(SDL_Renderer* renderer, Camera camera, Node* nodes, 
-        int numNodes, Road* roads, int numRoads, char* fpsText) {
+void render_screen(Display display, Node* nodes, int numNodes, Road* roads, 
+        int numRoads, char* fpsText) {
     // fill screen
-    SDL_SetRenderDrawColor(renderer, BG.r, BG.g, BG.b, BG.a);
-    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(display.renderer, BG.r, BG.g, BG.b, BG.a);
+    SDL_RenderClear(display.renderer);
 
     // render the roads
-    SDL_SetRenderDrawColor(renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_SetRenderDrawColor(display.renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
     for (int i=0; i<numRoads; i++) {
-        draw_road(renderer, camera, roads[i]);
+        draw_road(display.renderer, *display.camera, roads[i]);
     }
 
     // render the nodes
-//    SDL_SetRenderDrawColor(renderer, RED.r, RED.g, RED.b, RED.a);
-//    for (int i=0; i<numNodes; i++) {
-//        draw_point(renderer, camera, nodes[i].pos);
-//    }
+    if (display.showNodes) {
+        SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+        for (int i=0; i<numNodes; i++) {
+            draw_point(display.renderer, *display.camera, nodes[i].pos);
+        }
+    }
 
     // render FPS count
-    SDL_RenderDebugText(renderer, 10, 10, fpsText);
+    SDL_SetRenderDrawColor(display.renderer, BG.r, BG.g, BG.b, BG.a);
+    SDL_FRect rect = (SDL_FRect){0, 0, 70, 15};
+    SDL_RenderFillRect(display.renderer, &rect);
+    SDL_SetRenderDrawColor(display.renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
+    SDL_RenderDebugText(display.renderer, 5, 5, fpsText);
 
     // update the display
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(display.renderer);
 }
 
 int main() {
@@ -133,7 +139,7 @@ int main() {
     char fpsText[16];
 
     // move this later
-    //Renderer renderer = (Renderer){renderer, camera, true, true};
+    Display display = (Display){renderer, &camera, false, true};
 
     SDL_Event event;
     bool mouseDown = false; // keep track of mouse state
@@ -146,7 +152,12 @@ int main() {
 
             // check for key presses
             else if (event.type == SDL_EVENT_KEY_DOWN) {
-                if (event.key.key == SDLK_Q) run = false; // q key quits
+                if (event.key.key == SDLK_Q) { // q key quits
+                    run = false;
+                }
+                if (event.key.key == SDLK_N) { // n toggles node rendering
+                    display.showNodes = !display.showNodes;
+                }
             }
 
             // check for mouse clicks
@@ -200,7 +211,6 @@ int main() {
             frameCounter = 0;
         }
 
-        render_screen(renderer, camera, nodes, numNodes, roads, numRoads, 
-                fpsText);
+        render_screen(display, nodes, numNodes, roads, numRoads, fpsText);
     }
 }
