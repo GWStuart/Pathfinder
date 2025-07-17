@@ -44,6 +44,11 @@ typedef struct {
     bool showHighlihts;
 } Display;
 
+typedef struct {
+    Node start;
+    Node end;
+} Pathfinder;
+
 // convert a global coordinate to a local coordinate
 SDL_Point get_local(Camera camera, Pos pos) {
     return (SDL_Point){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
