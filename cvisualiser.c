@@ -147,13 +147,10 @@ SDL_Texture* create_message(SDL_Renderer* renderer, TTF_Font* font,
 int main() {
     // load in the nodes array
     Node* nodes;
-    //int numNodes = load_nodes("assets/data/no.nodes", &nodes);
-    //int numNodes = load_nodes("assets/data/RomeFull.nodes", &nodes);
     int numNodes = load_nodes("assets/data/Brisbane.nodes", &nodes);
 
     // load the roads array
     Road* roads;
-    //int numRoads = load_roads("assets/data/RomeFull.roads", nodes, &roads);
     int numRoads = load_roads("assets/data/Brisbane.roads", nodes, &roads);
 
     // initialise SDL
