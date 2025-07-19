@@ -31,8 +31,9 @@ void print_node_long(Node node) {
 
     // print information for each neighbour
     for (int i = 0; i < node.numNeighbours; i++) {
-        Node* n = node.neighbours[i];
-        printf(" (%lf,%lf)", n->pos.x, n->pos.y);
+        Node* n = node.neighbours[i].node;
+        printf(" (%lf,%lf,w=%lf)", n->pos.x, n->pos.y, 
+                node.neighbours[i].weight);
     }
     printf(" ]\n");
 }
@@ -109,30 +110,37 @@ char* extract_pos(char* string, Pos* pos) {
  * string: the string from which the information is to be extracted
  * node: the node whose neighbours are to be populated
  * nodes: the full array of all nodes in the graph
+ *
+ * returns a char* pointing towards the remaining portion of  the string that
+ * was not used.
  */
-void populate_neighbours(char* string, Node* node, Node** nodes) {
-    int numNeighbours = count_occurences(string, ',') + 1;
+char* populate_neighbours(char* string, Node* node, Node** nodes) {
+    string = split_string(string, '[');
+    char* remaining = split_string(string, '['); // cutoff remaining characters
 
     // create the neighbours array
-    node->neighbours = malloc(sizeof(Node*) * numNeighbours);
-
-    string = split_string(string, '[');
+    int numNeighbours = count_occurences(string, ',') + 1;
+    node->neighbours = malloc(sizeof(Neighbour) * numNeighbours);
 
     char* newString;
     int num;
     for (int i = 0; i < numNeighbours-1; i++) {
         newString = split_string(string, ',');
         num = atoi(string);
-        node->neighbours[i] = &((*nodes)[num]);
+        node->neighbours[i].node = &((*nodes)[num]);
+        node->neighbours[i].weight = 1.24f; // TODO: do this later
         string = newString;
     }
 
     // add the last node
     num = atoi(string);
-    node->neighbours[numNeighbours - 1] = &((*nodes)[num]);
+    node->neighbours[numNeighbours - 1].node = &((*nodes)[num]);
+    node->neighbours[numNeighbours - 1].weight = 1.24f; // TODO: do this later
 
     // record the number of neighbours
     node->numNeighbours = numNeighbours;
+
+    return remaining;
 }
 
 int load_nodes(char* filename, Node** nodes) {
@@ -150,9 +158,15 @@ int load_nodes(char* filename, Node** nodes) {
     int i = 0;
     while (fgets(buffer, sizeof(buffer), file)) {
         char* string = extract_pos(buffer, &(*nodes)[i].pos);
-        populate_neighbours(string, &(*nodes)[i], nodes);
+        string = populate_neighbours(string, &(*nodes)[i], nodes);
+        //printf("%s", string); // TODO: probably don't need to return the string
+        // in future. The populate_neighbours function should be able to handle
+        // all of it.
         i++;
     }
+
+    // cleanup
+    fclose(file);
 
     return numNodes;
 }
@@ -223,6 +237,9 @@ int load_roads(char* filename, Node* nodes, Road** roads) {
 
         i++;
     }
+
+    // cleanup
+    fclose(file);
 
     return numRoads;
 }

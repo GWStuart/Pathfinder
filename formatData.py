@@ -9,11 +9,19 @@ This envolves extracting only the relevant information and scaling GPS coordinat
 coordinates are floating point value between 0 and 1. Additional scaling factors were needed to
 prevent distortion caused by rendering spherical GPS coordinates on a 2D screen.
 
-.data file:
-    This file contains all road segments partitioned so that each segment starts and ends at 
-    an intersection point. The first line of this file is a single number representing the total
-    number of roads. Subsequent lines represent each road and start with a number representing the
-    number of nodes in that given road.
+Both files start with a line containing a single integer that represents the total number of lines in the file.
+
+# .nodes file:
+File used to contain data for all nodes in the network.
+File is structured so that it contains:
+    1. a tuple containing the nodes position
+    2. an array containing the indexes of all neighbouring nodes
+    3. an array containing the weighting representing the distance to that node
+# .roads file:
+File used to contain data for all roads in the network.
+File is structured as follows:
+    1. two integers represeting the indexes of the start and end nodes
+    2. an array of coordinates representing the road path.
 """
 description = """
 Tool used to process and extract road networks for openMap geojson data.
@@ -131,26 +139,35 @@ with open(outputFile + ".roads", "w") as f:
         node1 = nodes.index(road[0]);
         node2 = nodes.index(road[-1]);
         f.write(f"{node1} {node2} {str(road)}\n")
+print("Road data saved successfully")
 
 # find all node connections
+print("\nComputing all road neighbours")
 neighbours = dict(zip(nodes, [list() for _ in range(len(intersections_set))]))
 for road in partitioned_roads:
     neighbours[road[0]].append(nodes.index(road[-1]))
     neighbours[road[-1]].append(nodes.index(road[0]))
-
-#    neighbours[road[0]].append(road[-1])
-#    neighbours[road[-1]].append(road[0])
-
-
-#for node, connections in neighbours.items():
-#    print(node, connections)
+print("Neighbours found successfully")
 
 # save the intersection data
-print(f"Saving road neighbours to {outputFile}.nodes")
+print(f"\nSaving road neighbours to {outputFile}.nodes")
 with open(outputFile + ".nodes", "w") as f:
     f.write(f"{len(neighbours)}\n")
     for node, connections in neighbours.items():
-        f.write(f"{str(node)} {str(connections)}\n")
+        # TODO: read below
+        """
+        just realised that I am actually calculating the weight of a path as the
+        euclidian distance from start to end but it should really be the sum of
+        the distances across all nodes in the path. Don't really feel like going
+        down that rabbit whole right now but I should compute that properly in
+        future.
+
+        I guess it is good that I decided to precompute this since A) doing it
+        in C would suck and B) it is probably not that fast computationally.
+        """
+        weights = list(map(lambda pos: math.dist(node, nodes[pos]) * 1000, 
+                           connections))
+        f.write(f"{str(node)} {str(connections)} {str(weights)}\n")
 
 # conclude program
-print("Operation completed successfully")
+print("Operation completed successfully\n")

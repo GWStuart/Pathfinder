@@ -8,6 +8,8 @@
 
 #include "loadData.h"
 
+#include <sys/resource.h>
+
 // define screen sizes
 #define WIDTH 800
 #define HEIGHT 600
@@ -48,6 +50,14 @@ typedef struct {
     Node start;
     Node end;
 } Pathfinder;
+
+// temporary function used to check what the memory usage is.
+// this function can be removed in future
+void print_memory_usage() {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    printf("Memory usage: %ld KB\n", usage.ru_maxrss);
+}
 
 // convert a global coordinate to a local coordinate
 SDL_Point get_local(Camera camera, Pos pos) {
@@ -190,6 +200,9 @@ int main() {
                 }
                 if (event.key.key == SDLK_N) { // n toggles node rendering
                     display.showNodes = !display.showNodes;
+                }
+                if (event.key.key == SDLK_M) { // n toggles node rendering
+                    print_memory_usage();
                 }
             }
 
