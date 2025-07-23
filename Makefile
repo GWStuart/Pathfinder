@@ -10,15 +10,14 @@ TARGETS = vis
 
 .DEFAULT_GOAL := all
 
+OBJS = cvisualiser.o loadData.o renderUtils.o config.o
+
 all: vis
 
-vis: cvisualiser.o loadData.o
+vis: $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
-cvisualiser.o: cvisualiser.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-loadData.o: loadData.c loadData.h
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

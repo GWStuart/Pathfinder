@@ -7,49 +7,14 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include "loadData.h"
+#include "config.h"
+#include "renderUtils.h"
 
+// can remove this include later
 #include <sys/resource.h>
-
-// define screen sizes
-#define WIDTH 800
-#define HEIGHT 600
-
-// define camera constants
-#define PAN_SPEED 5
-#define ZOOM_FACTOR 1.1
-#define ZOOM_DIFF ZOOM_FACTOR - 1
-#define INIT_SCALE WIDTH
-
-// other constants
-#define PADDING 5
-#define FONT_SIZE 18
 
 // define string constants
 const char* const MSG_START = "Select a starting point";
-
-// define SDL colours
-SDL_Color BG = {0x28, 0x28, 0x28, 0xff};
-SDL_Color WHITE = {0xff, 0xff, 0xff, 0xff};
-SDL_Color RED = {0xff, 0x00, 0x00, 0xff};
-SDL_Color BLUE = {0x70, 0xd6, 0xff, 0xff};
-
-typedef struct {
-    double x;
-    double y;
-    double zoom;
-} Camera;
-
-typedef struct {
-    SDL_Renderer* renderer;
-    Camera* camera;
-    bool showNodes;
-    bool showHighlihts;
-} Display;
-
-typedef struct {
-    Node start;
-    Node end;
-} Pathfinder;
 
 // temporary function used to check what the memory usage is.
 // this function can be removed in future
@@ -57,43 +22,6 @@ void print_memory_usage() {
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
     printf("Memory usage: %ld KB\n", usage.ru_maxrss);
-}
-
-// convert a global coordinate to a local coordinate
-SDL_Point get_local(Camera camera, Pos pos) {
-    return (SDL_Point){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
-                       (pos.y*INIT_SCALE - camera.y) * camera.zoom};
-}
-
-// convert a global coordinate to a local coordinate
-SDL_FPoint get_local_float(Camera camera, Pos pos) {
-    return (SDL_FPoint){(pos.x*INIT_SCALE - camera.x) * camera.zoom, 
-                       (pos.y*INIT_SCALE - camera.y) * camera.zoom};
-}
-
-/* draw_point()
- * function used to draw small points on the screen at the specified position
- * renderer: the renderer to use
- * pos: the position struct at which to render the point
- */
-void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
-    SDL_Point local = get_local(camera, pos);
-    SDL_FRect rect = (SDL_FRect){local.x - 1, local.y - 1, 2, 2};
-
-    SDL_RenderFillRect(renderer, &rect);
-}
-
-/* draw_road()
- * function used to draw the given road
- * renderer: the renderer to use
- * pos: the position struct at which to render the point
- */
-void draw_road(SDL_Renderer* renderer, Camera camera, Road road) {
-    SDL_FPoint points[road.pathCount];
-    for (int i=0; i<road.pathCount; i++) {
-        points[i] = get_local_float(camera, road.path[i]);
-    }
-    SDL_RenderLines(renderer, points, road.pathCount);
 }
 
 void render_screen(Display display, Node* nodes, int numNodes, Road* roads, 
@@ -117,31 +45,13 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
     }
 
     // render FPS count
-    SDL_SetRenderDrawColor(display.renderer, BG.r, BG.g, BG.b, BG.a);
-    SDL_FRect rect = (SDL_FRect){0, 0, 70, 15};
-    SDL_RenderFillRect(display.renderer, &rect);
-    SDL_SetRenderDrawColor(display.renderer, WHITE.r, WHITE.g, WHITE.b, WHITE.a);
-    SDL_RenderDebugText(display.renderer, 5, 5, fpsText);
+    render_fps(display.renderer, fpsText);
 
     // render the message
-    rect = (SDL_FRect){0, HEIGHT - message->h, message->w + PADDING*2, 
-                       message->h};
-    SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
-    SDL_RenderFillRect(display.renderer, &rect);
-    rect = (SDL_FRect){PADDING, HEIGHT - message->h, message->w, message->h};
-    SDL_RenderTexture(display.renderer, message, NULL, &rect);
+    render_message(display.renderer, message);
 
     // update the display
     SDL_RenderPresent(display.renderer);
-}
-
-SDL_Texture* create_message(SDL_Renderer* renderer, TTF_Font* font, 
-        const char* message) {
-    SDL_Surface* surface = TTF_RenderText_Blended(font, message, 
-            strlen(message), BG);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_DestroySurface(surface);
-    return texture;
 }
 
 int main() {
@@ -160,7 +70,6 @@ int main() {
     // setup window
     SDL_Window* window = SDL_CreateWindow("Pathfinder", WIDTH, HEIGHT, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
-    //SDL_SetWindowFullscreen(window, true); // uncomment for fullscreen
 
     // setup fonts
     TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", FONT_SIZE);
