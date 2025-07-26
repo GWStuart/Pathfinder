@@ -38,7 +38,17 @@ typedef struct Node Node;
  * weight: the weight of that connection
  */
 typedef struct {
+    // TODO: just had a good idea. I think that this neighbour struct should
+    // additionally hold a pointer to a Road which represents the road
+    // connecting two nodes. This is all precomputed and memory wise the program
+    // is doing fine. By already having this information then I don't need to
+    // do any computation to find the associated road with a node neighbour.
+    //
+    // then wee will also modify the road struct to include a colour. Where
+    // colour is just an interger 1,2,3 representing what colour to use.
+    // Use an enum to store the state values
     Node* node;
+    Road* road;  // so set this line in future
     double weight;
 } Neighbour;
 

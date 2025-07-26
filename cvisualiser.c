@@ -13,6 +13,16 @@
 // can remove this include later
 #include <sys/resource.h>
 
+// there are a few states in which the software can be.
+// STATE_SELECT_START --> select pathfinder start point
+// STATE_SELECT_END   --> select pathfinder end point
+// STATE_PATHFIND     --> running the pathfinder
+typedef enum {
+    STATE_SELECT_START = 1,
+    STATE_SELECT_EEND = 2,
+    STATE_PATHFIND = 3
+} AppState;
+
 // define string constants
 const char* const MSG_START = "Select a starting point";
 
@@ -92,6 +102,9 @@ int main() {
 
     SDL_Event event;
     bool mouseDown = false; // keep track of mouse state
+    
+    // the initial state of the application
+    int state = STATE_SELECT_START;
 
     bool run = true;
     while (run) {
@@ -121,9 +134,13 @@ int main() {
             }
 
             // check for mouse motion
-            else if (event.type == SDL_EVENT_MOUSE_MOTION && mouseDown) {
-                camera.x -= event.motion.xrel / camera.zoom;
-                camera.y -= event.motion.yrel / camera.zoom;
+            else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+                if (mouseDown) {
+                    camera.x -= event.motion.xrel / camera.zoom;
+                    camera.y -= event.motion.yrel / camera.zoom;
+                } else if (state <= 2) {
+                    printf("hello\n");
+                }
             }
 
             // check for mouse wheel events
