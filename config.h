@@ -48,7 +48,7 @@ typedef struct {
     // colour is just an interger 1,2,3 representing what colour to use.
     // Use an enum to store the state values
     Node* node;
-    Road* road;  // so set this line in future
+    // Road* road;  // so set this line in future
     double weight;
 } Neighbour;
 

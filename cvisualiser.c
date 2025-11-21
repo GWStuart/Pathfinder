@@ -139,7 +139,7 @@ int main() {
                     camera.x -= event.motion.xrel / camera.zoom;
                     camera.y -= event.motion.yrel / camera.zoom;
                 } else if (state <= 2) {
-                    printf("hello\n");
+                    // printf("hello\n");
                 }
             }
 
