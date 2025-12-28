@@ -1,27 +1,26 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -pedantic
-CFLAGS += $(shell pkg-config --cflags sdl3)
-CFLAGS += $(shell pkg-config --cflags sdl3-ttf)
+CFLAGS = -Wall -Wextra -pedantic -O0
+CFLAGS += $(shell pkg-config --cflags sdl3 sdl3-ttf)
 
-LDFLAGS = -lSDL3_ttf -lSDL3 -lm
+LDFLAGS = $(shell pkg-config --libs sdl3 sdl3-ttf) -lm
 
-TARGETS = vis
+TARGET = vis
+OBJS = cvisualiser.o loadData.o renderUtils.o config.o
 
 .DEFAULT_GOAL := all
 
-OBJS = cvisualiser.o loadData.o renderUtils.o config.o
+all: $(TARGET)
 
-all: vis
-
-vis: $(OBJS)
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGETS) *.o
+	rm -f $(TARGET) $(OBJS)
 
-debug: CFLAGS += -g
-debug: all
+debug: CFLAGS += -g -fsanitize=address
+debug: clean all
+

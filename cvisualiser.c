@@ -1,3 +1,15 @@
+/*
+ * cvisualiser.c
+ *
+ * Main program entry point.
+ *
+ * This file is responsible for:
+ *    - holding the main() function
+ *    - initialise and setup SDL window
+ *    - unite functionality across other files
+ *
+ */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
@@ -120,7 +132,7 @@ int main() {
                 if (event.key.key == SDLK_N) { // n toggles node rendering
                     display.showNodes = !display.showNodes;
                 }
-                if (event.key.key == SDLK_M) { // n toggles node rendering
+                if (event.key.key == SDLK_M) { // m to print memory usage
                     print_memory_usage();
                 }
             }

@@ -1,3 +1,12 @@
+/*
+ * loadData.c
+ *
+ * Program responsbile for loading GeoJSON map data. Implements the
+ * functions `load_roads()` and `load_nodes()` that are used in
+ * cvisualiser.c.
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -7,6 +16,8 @@
 
 #define MAX_BUFFER_SIZE 8192
 
+
+// helper function to print a position struct
 void print_pos(Pos pos, bool newline) {
     printf("(%lf, %lf)", pos.x, pos.y);
 
@@ -16,6 +27,8 @@ void print_pos(Pos pos, bool newline) {
     }
 }
 
+
+// helper function to print a node struct
 void print_node(Node node, bool newline) {
     printf("Node(%lf, %lf, neighbours=%d)", node.pos.x, node.pos.y, 
             node.numNeighbours);
@@ -26,6 +39,8 @@ void print_node(Node node, bool newline) {
     }
 }
 
+
+// helper function to print a node struct in long form
 void print_node_long(Node node) {
     printf("Node(%lf, %lf, [", node.pos.x, node.pos.y);
 
@@ -38,6 +53,24 @@ void print_node_long(Node node) {
     printf(" ]\n");
 }
 
+
+// helper function to print a road struct
+void print_road(Road road, bool newline) {
+    printf("Road(from <%lf,%lf> to <%lf,%lf>)\n", road.start.pos.x,
+            road.start.pos.x, road.end.pos.x, road.end.pos.y);
+
+    printf("Num paths: %d\nPath: ", road.pathCount);
+    for (int i=0; i<road.pathCount; i++) {
+        printf("<%lf,%lf> ", road.path[i].x, road.path[i].y);
+    }
+
+    // print a newline if required
+    if (newline) {
+        printf("\n");
+    }
+}
+
+
 // counts the number of occurences of the specified character in the string
 int count_occurences(char* string, char character) {
     int count = 0;
@@ -49,7 +82,8 @@ int count_occurences(char* string, char character) {
     return count;
 }
 
-/* returns a new string pointer that starts 1 chracter afrer the specified
+
+/* returns a new string pointer that starts 1 chracter after the specified
  * character. Note that this function assumes that the specified character is
  * in the string.
  */
@@ -171,20 +205,6 @@ int load_nodes(char* filename, Node** nodes) {
     return numNodes;
 }
 
-void print_road(Road road, bool newline) {
-    printf("Road(from <%lf,%lf> to <%lf,%lf>)\n", road.start.pos.x,
-            road.start.pos.x, road.end.pos.x, road.end.pos.y);
-
-    printf("Num paths: %d\nPath: ", road.pathCount);
-    for (int i=0; i<road.pathCount; i++) {
-        printf("<%lf,%lf> ", road.path[i].x, road.path[i].y);
-    }
-
-    // print a newline if required
-    if (newline) {
-        printf("\n");
-    }
-}
 
 /* load_path()
  * ---------------------
@@ -208,6 +228,7 @@ void load_path(char* string, Road* road) {
     road->pathCount = numCoords;
     road->path = coords;
 }
+
 
 int load_roads(char* filename, Node* nodes, Road** roads) {
     FILE* file = fopen(filename, "r");
