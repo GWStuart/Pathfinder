@@ -1,3 +1,11 @@
+/*
+ * config.h
+ *
+ * File used to hold most structs and macros used in the program 
+ * so that they can all be found a loaded from a centralised place.
+ *
+ */
+
 #ifndef PATHFINDER_CONFIG_H
 #define PATHFINDER_CONFIG_H
 
@@ -24,7 +32,7 @@ extern const SDL_Color WHITE;
 extern const SDL_Color RED;
 extern const SDL_Color BLUE;
 
-// holds a coorrdinate position
+// holds a coordinate position
 typedef struct {
     double x;
     double y;

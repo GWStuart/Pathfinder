@@ -1,122 +1,13 @@
-/*
- * loadData.c
- *
- * Program responsbile for loading GeoJSON map data. Implements the
- * functions `load_roads()` and `load_nodes()` that are used in
- * cvisualiser.c.
- * 
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
 #include "loadData.h"
+#include "stringUtils.h"
 
 #define MAX_BUFFER_SIZE 8192
 
-
-// helper function to print a position struct
-void print_pos(Pos pos, bool newline) {
-    printf("(%lf, %lf)", pos.x, pos.y);
-
-    // print a newline if required
-    if (newline) {
-        printf("\n");
-    }
-}
-
-
-// helper function to print a node struct
-void print_node(Node node, bool newline) {
-    printf("Node(%lf, %lf, neighbours=%d)", node.pos.x, node.pos.y, 
-            node.numNeighbours);
-
-    // print a newline if required
-    if (newline) {
-        printf("\n");
-    }
-}
-
-
-// helper function to print a node struct in long form
-void print_node_long(Node node) {
-    printf("Node(%lf, %lf, [", node.pos.x, node.pos.y);
-
-    // print information for each neighbour
-    for (int i = 0; i < node.numNeighbours; i++) {
-        Node* n = node.neighbours[i].node;
-        printf(" (%lf,%lf,w=%lf)", n->pos.x, n->pos.y, 
-                node.neighbours[i].weight);
-    }
-    printf(" ]\n");
-}
-
-
-// helper function to print a road struct
-void print_road(Road road, bool newline) {
-    printf("Road(from <%lf,%lf> to <%lf,%lf>)\n", road.start.pos.x,
-            road.start.pos.x, road.end.pos.x, road.end.pos.y);
-
-    printf("Num paths: %d\nPath: ", road.pathCount);
-    for (int i=0; i<road.pathCount; i++) {
-        printf("<%lf,%lf> ", road.path[i].x, road.path[i].y);
-    }
-
-    // print a newline if required
-    if (newline) {
-        printf("\n");
-    }
-}
-
-
-// counts the number of occurences of the specified character in the string
-int count_occurences(char* string, char character) {
-    int count = 0;
-    for (size_t i=0; i<strlen(string); i++) {
-        if (string[i] == character) {
-            count++;
-        }
-    }
-    return count;
-}
-
-
-/* returns a new string pointer that starts 1 chracter after the specified
- * character. Note that this function assumes that the specified character is
- * in the string.
- */
-char* move_to_char(char* string, char character) {
-    while (string[0] != character) {
-        string++;
-    }
-    string++;
-    return string;
-}
-
-/* returns the index of the string containing the specified character. This
- * function assumes the character is present somewhere in the string
- */
-int index_of(char* string, char character) {
-    int i = 0;
-    while (string[i] != character) {
-        i++;
-    }
-    return i;
-}
-
-/* partitions the given string so that it is split at the specified character.
- * this functiton returns a pointer to the second half of the partition
- */
-char* split_string(char* string, char character) {
-    while (string[0] != character) {
-        string++;
-    }
-    string[0] = '\0';
-    string++;
-    return string;
-}
 
 /* extracts the first position struct form the given string. Returns a pointer
  * remaining portion of the string
@@ -177,6 +68,8 @@ char* populate_neighbours(char* string, Node* node, Node** nodes) {
     return remaining;
 }
 
+
+// see header
 int load_nodes(char* filename, Node** nodes) {
     FILE* file = fopen(filename, "r");
 
@@ -230,6 +123,7 @@ void load_path(char* string, Road* road) {
 }
 
 
+// see header
 int load_roads(char* filename, Node* nodes, Road** roads) {
     FILE* file = fopen(filename, "r");
 

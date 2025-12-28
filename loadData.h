@@ -1,20 +1,17 @@
+/*
+ * loadData.c
+ *
+ * Program responsbile for loading GeoJSON map data. Implements the
+ * functions `load_roads()` and `load_nodes()` that are used in
+ * cvisualiser.c.
+ * 
+ */
+
 #ifndef LOAD_DATA_H
 #define LOAD_DATA_H
 
 #include <stdbool.h>
 #include "config.h"
-
-// helper function that prints the given road in a nice format
-void print_pos(Pos pos, bool newline);
-
-// helper function that prints the given node in a nice format
-void print_node(Node node, bool newline);
-
-// longer version of print_node function. Also shows neighbour positions
-void print_node_long(Node node);
-
-// helper function that prints the given road in a nice format
-void print_road(Road road, bool newline);
 
 /* load_nodes()
  * ------------
