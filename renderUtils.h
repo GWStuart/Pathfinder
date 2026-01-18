@@ -16,6 +16,13 @@ SDL_FPoint get_local_float(Camera camera, Pos pos);
  */
 void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos);
 
+/* draw_circle()
+ * function used to draw circles on the screen at the specified position
+ * renderer: the renderer to use
+ * pos: the position struct at which to render the point
+ */
+void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos);
+
 /* draw_road()
  * function used to draw the given road
  * renderer: the renderer to use

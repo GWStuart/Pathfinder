@@ -28,6 +28,31 @@ void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+// Efficiently renders a circle centered at the given position and with a radius
+// that is proportional to the current camera zoom
+void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos) {
+    SDL_Point local = get_local(camera, pos);
+
+    // draw the points
+    SDL_FRect rect;
+    if (camera.zoom <= 1) {
+        rect = (SDL_FRect){local.x - 1, local.y - 1, 2, 2};
+    } else if (camera.zoom >= 10) {
+        rect = (SDL_FRect){local.x - 4, local.y - 4, 8, 8};
+    } else {
+        double sx = camera.zoom*(1.0/3.0) + 2.0/3.0;
+        double sx2 = 2 * sx;
+        rect = (SDL_FRect){
+            local.x - sx, 
+            local.y - sx, 
+            sx2, 
+            sx2
+        };
+    }
+
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 // Efficiently renders a road from a given road struct
 void draw_road(SDL_Renderer* renderer, Camera camera, Road road) {
     SDL_FPoint points[road.pathCount];

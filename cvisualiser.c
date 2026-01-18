@@ -62,7 +62,8 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
     if (display.showNodes) {
         SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
         for (int i=0; i<numNodes; i++) {
-            draw_point(display.renderer, *display.camera, nodes[i].pos);
+            //draw_point(display.renderer, *display.camera, nodes[i].pos);
+            draw_circle(display.renderer, *display.camera, nodes[i].pos);
         }
     }
 
@@ -130,10 +131,14 @@ int main() {
                     run = false;
                 }
                 if (event.key.key == SDLK_N) { // n toggles node rendering
+                    printf("Node rendering has been toggeled\n");
                     display.showNodes = !display.showNodes;
                 }
                 if (event.key.key == SDLK_M) { // m to print memory usage
                     print_memory_usage();
+                }
+                if (event.key.key == SDLK_L) { // general log
+                    printf("LOG: %f\n", camera.zoom);
                 }
             }
 
@@ -150,8 +155,6 @@ int main() {
                 if (mouseDown) {
                     camera.x -= event.motion.xrel / camera.zoom;
                     camera.y -= event.motion.yrel / camera.zoom;
-                } else if (state <= 2) {
-                    // printf("hello\n");
                 }
             }
 
