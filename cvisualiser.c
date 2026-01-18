@@ -21,6 +21,7 @@
 #include "loadData.h"
 #include "config.h"
 #include "renderUtils.h"
+#include "printUtils.h"
 
 // can remove this include later
 #include <sys/resource.h>
@@ -62,8 +63,7 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
     if (display.showNodes) {
         SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
         for (int i=0; i<numNodes; i++) {
-            //draw_point(display.renderer, *display.camera, nodes[i].pos);
-            draw_circle(display.renderer, *display.camera, nodes[i].pos);
+            draw_point(display.renderer, *display.camera, nodes[i].pos);
         }
     }
 
@@ -72,9 +72,19 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
 
     // render the message
     render_message(display.renderer, message);
+}
 
-    // update the display
-    SDL_RenderPresent(display.renderer);
+Node* get_closest_node(Pos pos, Node* nodes, int numNodes) {
+    double min_dist = INFINITY;
+    Node* min_node = nodes;
+    for (int i=0; i<numNodes; i++) {
+        double dist = pow(nodes[i].pos.x - pos.x, 2) + pow(nodes[i].pos.y - pos.y, 2);
+        if (dist < min_dist) {
+            min_dist = dist;
+            min_node = nodes + i;
+        }
+    }
+    return min_node;
 }
 
 int main() {
@@ -112,6 +122,9 @@ int main() {
     double fpsTimer = 0;
     int frameCounter = 0;
     char fpsText[16];
+
+    // node highlighting
+    Node* focus_node;
 
     SDL_Event event;
     bool mouseDown = false; // keep track of mouse state
@@ -155,6 +168,9 @@ int main() {
                 if (mouseDown) {
                     camera.x -= event.motion.xrel / camera.zoom;
                     camera.y -= event.motion.yrel / camera.zoom;
+                } else {
+                    Pos mouse = get_global(camera, event.motion.x, event.motion.y);
+                    focus_node = get_closest_node(mouse, nodes, numNodes);
                 }
             }
 
@@ -197,5 +213,14 @@ int main() {
 
         render_screen(display, nodes, numNodes, roads, numRoads, message, 
                 fpsText);
+
+        if (focus_node) {
+            SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+            draw_circle(renderer, camera, focus_node->pos, 5);
+            //print_pos(focus_node->pos, true);
+        }
+
+        // update the display
+        SDL_RenderPresent(display.renderer);
     }
 }

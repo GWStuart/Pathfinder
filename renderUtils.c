@@ -19,18 +19,15 @@ SDL_FPoint get_local_float(Camera camera, Pos pos) {
                        (pos.y*INIT_SCALE - camera.y) * camera.zoom};
 }
 
-// Efficiently renders a small point to the given position
-void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
-    SDL_Point local = get_local(camera, pos);
-
-    // points are drawn as a 2-by-2 rectangle
-    SDL_FRect rect = (SDL_FRect){local.x - 1, local.y - 1, 2, 2};
-    SDL_RenderFillRect(renderer, &rect);
+Pos get_global(Camera camera, float x, float y) {
+    return (Pos){
+        .x = (x / camera.zoom + camera.x) / INIT_SCALE,
+        .y = (y / camera.zoom + camera.y) / INIT_SCALE
+    };
 }
 
-// Efficiently renders a circle centered at the given position and with a radius
-// that is proportional to the current camera zoom
-void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos) {
+// Efficiently renders a small point to the given position
+void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
     SDL_Point local = get_local(camera, pos);
 
     // draw the points
@@ -50,6 +47,14 @@ void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos) {
         };
     }
 
+    SDL_RenderFillRect(renderer, &rect);
+}
+
+// Efficiently renders a circle centered at the given position and with a radius
+// that is proportional to the current camera zoom
+void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos, int r) {
+    SDL_Point local = get_local(camera, pos);
+    SDL_FRect rect = (SDL_FRect){local.x - 5, local.y - 5, 10, 10};
     SDL_RenderFillRect(renderer, &rect);
 }
 

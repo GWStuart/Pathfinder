@@ -9,6 +9,9 @@ SDL_Point get_local(Camera camera, Pos pos);
 // same as function above but returns an FPoint (required by some SDL functions)
 SDL_FPoint get_local_float(Camera camera, Pos pos);
 
+// convert a local coordinate to a global one
+Pos get_global(Camera camera, float x, float y);
+
 /* draw_point()
  * function used to draw small points on the screen at the specified position
  * renderer: the renderer to use
@@ -21,7 +24,7 @@ void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos);
  * renderer: the renderer to use
  * pos: the position struct at which to render the point
  */
-void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos);
+void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos, int r);
 
 /* draw_road()
  * function used to draw the given road
