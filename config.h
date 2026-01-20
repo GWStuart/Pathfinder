@@ -31,6 +31,7 @@ extern const SDL_Color BG;
 extern const SDL_Color WHITE;
 extern const SDL_Color RED;
 extern const SDL_Color BLUE;
+extern const SDL_Color YELLOW;
 
 // holds a coordinate position
 typedef struct {

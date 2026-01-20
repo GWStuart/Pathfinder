@@ -54,8 +54,30 @@ void draw_point(SDL_Renderer* renderer, Camera camera, Pos pos) {
 // that is proportional to the current camera zoom
 void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos, int r) {
     SDL_Point local = get_local(camera, pos);
-    SDL_FRect rect = (SDL_FRect){local.x - 5, local.y - 5, 10, 10};
-    SDL_RenderFillRect(renderer, &rect);
+//    SDL_FRect rect = (SDL_FRect){local.x - 5, local.y - 5, 10, 10};
+//    SDL_RenderFillRect(renderer, &rect);
+
+
+    int x = r;
+    int y = 0;
+    int err = 0;
+
+    while (x >= y) {
+        SDL_RenderLine(renderer, local.x - x, local.y + y, local.x + x, local.y + y);
+        SDL_RenderLine(renderer, local.x - y, local.y + x, local.x + y, local.y + x);
+        SDL_RenderLine(renderer, local.x - x, local.y - y, local.x + x, local.y - y);
+        SDL_RenderLine(renderer, local.x - y, local.y - x, local.x + y, local.y - x);
+
+        y++;
+
+        if (err <= 0) {
+            err += 2*y + 1;
+        } else {
+            x--;
+            err += 2*(y - x) + 1;
+        }
+    }
+
 }
 
 // Efficiently renders a road from a given road struct

@@ -214,10 +214,12 @@ int main() {
         render_screen(display, nodes, numNodes, roads, numRoads, message, 
                 fpsText);
 
+        // highlight focussed nodes if needed
         if (focus_node) {
-            SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+            SDL_SetRenderDrawColor(
+                    display.renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a
+            );
             draw_circle(renderer, camera, focus_node->pos, 5);
-            //print_pos(focus_node->pos, true);
         }
 
         // update the display
