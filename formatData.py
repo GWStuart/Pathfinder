@@ -148,14 +148,6 @@ intersections_set.update(startpoints_set)
 intersections_set.update(endpoints_set)
 nodes = list(intersections_set)
 
-# save the node data
-print(f"Saving node data to {outputFile}.nodes")
-with open(outputFile + ".nodes", "w") as f:
-    f.write(f"{len(nodes)}\n")
-    for node in nodes:
-        f.write(f"{node}\n")
-print("Node data saved successfully\n")
-
 # partition the road data at intersection points
 # this ensures that each road only contains 2 intersection points
 # (one at its start and one at its end)
@@ -186,6 +178,8 @@ def calculate_weight(road):
         prev = part
     return round(distance * 1000, 6)
 
+num_connections = [0 for node in nodes]
+
 # save the edge data
 print(f"Saving edge data to {outputFile}.edges")
 with open(outputFile + ".edges", "w") as f:
@@ -194,7 +188,19 @@ with open(outputFile + ".edges", "w") as f:
         to_node = nodes.index(road[-1])
         weight = calculate_weight(road)
         f.write(f"{from_node} {to_node} {weight}\n")
+
+        num_connections[from_node] += 1
+        num_connections[to_node] += 1
 print("Edge data saved successfully\n")
+
+# save the node data
+print(f"Saving node data to {outputFile}.nodes")
+with open(outputFile + ".nodes", "w") as f:
+    f.write(f"{len(nodes)}\n")
+    for node, connection in zip(nodes, num_connections):
+        f.write(f"{node} {connection}\n")
+print("Node data saved successfully\n")
+
 
 # conclude program
 print("Operation completed successfully\n")
