@@ -43,8 +43,10 @@ This file is used purely for road geometry
 # .edges file
 This is the file that ties everything together. Edges glue two nodes together
 and also contain information about the road that joins them.
-- First line contains the total number of edges
 - Subsequent lines are formatted as: node_start_id node_end_id road_id weight
+
+(note that with the edges the number of edges is equal to the number of roads
+and so this number is only recorded in the .roads file)
 
 """
 description = """
@@ -67,6 +69,8 @@ if args.output:
 else:
     outputFile = inputFile[:inputFile.index(".")]
 
+outputFile += "V2"
+
 # open the file to be read from
 try:
     with open(inputFile) as f:
@@ -76,11 +80,11 @@ except FileNotFoundError:
     print("No such file")
     quit()
 
-print("Processing Data")
+print("\nProcessing Data\n")
 
-ids = []
-names = []
-roads = []
+ids = []    # GeoJSON road id of the form wXXXXXXX
+names = []  # Road names
+roads = []  # Each element is a list containing tuples of road vertex coords
 
 # loop over all entries and extract the information
 for i in range(len(data["features"])):
@@ -144,8 +148,17 @@ intersections_set.update(startpoints_set)
 intersections_set.update(endpoints_set)
 nodes = list(intersections_set)
 
+# save the node data
+print(f"Saving node data to {outputFile}.nodes")
+with open(outputFile + ".nodes", "w") as f:
+    f.write(f"{len(nodes)}\n")
+    for node in nodes:
+        f.write(f"{node}\n")
+print("Node data saved successfully\n")
+
 # partition the road data at intersection points
-# this ensures that each road only contains 2 intersection points (one at its start and one at its end)
+# this ensures that each road only contains 2 intersection points
+# (one at its start and one at its end)
 partitioned_roads = []
 for road in roads:
     index = 0
@@ -156,42 +169,32 @@ for road in roads:
     partitioned_roads.append(road[index:])
 
 # save the road data
-print(f"Saving full road data to {outputFile}.roads")
+print(f"Saving road geometry data to {outputFile}.roads")
 with open(outputFile + ".roads", "w") as f:
     f.write(f"{len(partitioned_roads)}\n")
     for road in partitioned_roads:
-        node1 = nodes.index(road[0]);
-        node2 = nodes.index(road[-1]);
-        f.write(f"{node1} {node2} {str(road)}\n")
-print("Road data saved successfully")
+        f.write(f"{str(road)}\n")
+print("Road data saved successfully\n")
 
-# find all node connections
-print("\nComputing all road neighbours")
-neighbours = dict(zip(nodes, [list() for _ in range(len(intersections_set))]))
-for road in partitioned_roads:
-    neighbours[road[0]].append(nodes.index(road[-1]))
-    neighbours[road[-1]].append(nodes.index(road[0]))
-print("Neighbours found successfully")
+# calculates the weight of a given road which is just the roads length then 
+# scaled up arbitrarily and rounded.
+def calculate_weight(road):
+    prev = road[0]
+    distance = 0
+    for part in road[1:]:
+        distance += math.dist(prev, part)
+        prev = part
+    return round(distance * 1000, 6)
 
-# save the intersection data
-print(f"\nSaving road neighbours to {outputFile}.nodes")
-with open(outputFile + ".nodes", "w") as f:
-    f.write(f"{len(neighbours)}\n")
-    for node, connections in neighbours.items():
-        # TODO: read below
-        """
-        just realised that I am actually calculating the weight of a path as the
-        euclidian distance from start to end but it should really be the sum of
-        the distances across all nodes in the path. Don't really feel like going
-        down that rabbit whole right now but I should compute that properly in
-        future.
-
-        I guess it is good that I decided to precompute this since A) doing it
-        in C would suck and B) it is probably not that fast computationally.
-        """
-        weights = list(map(lambda pos: math.dist(node, nodes[pos]) * 1000, 
-                           connections))
-        f.write(f"{str(node)} {str(connections)} {str(weights)}\n")
+# save the edge data
+print(f"Saving edge data to {outputFile}.edges")
+with open(outputFile + ".edges", "w") as f:
+    for road in partitioned_roads:
+        from_node = nodes.index(road[0])
+        to_node = nodes.index(road[-1])
+        weight = calculate_weight(road)
+        f.write(f"{from_node} {to_node} {weight}\n")
+print("Edge data saved successfully\n")
 
 # conclude program
 print("Operation completed successfully\n")
