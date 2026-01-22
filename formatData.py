@@ -22,6 +22,30 @@ File used to contain data for all roads in the network.
 File is structured as follows:
     1. two integers represeting the indexes of the start and end nodes
     2. an array of coordinates representing the road path.
+
+
+I AM NOW WORKING ON AN ALTERNATIVE FILE STRUCTURE. HERE IS HOW THE DATA WILL BE
+FORMATTED IN THIS NEW STRUCTURE.
+
+# .nodes file
+File used to contain all nodes in the program.
+- First line contains the total number of nodes.
+- Each proceeding line contains two numbers representing the nodes position.
+
++ also tempted to include an integer here that represents the number of edges
+  that this node is attached to. Will make things easier later.
+
+# .roads file
+This file is used purely for road geometry
+- First line contains the total number of roads.
+- Each proceeding line contains an array of all the points along the road.
+
+# .edges file
+This is the file that ties everything together. Edges glue two nodes together
+and also contain information about the road that joins them.
+- First line contains the total number of edges
+- Subsequent lines are formatted as: node_start_id node_end_id road_id weight
+
 """
 description = """
 Tool used to process and extract road networks for openMap geojson data.

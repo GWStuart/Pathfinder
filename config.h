@@ -39,52 +39,94 @@ typedef struct {
     double y;
 } Pos;
 
-// forward decleration of Node
-typedef struct Node Node;
 
-/* struct used to hold node neighbours
- * node: a pointer to the neighbouring node
- * weight: the weight of that connection
- */
+typedef struct Edge Edge;
+
+
 typedef struct {
-    // TODO: just had a good idea. I think that this neighbour struct should
-    // additionally hold a pointer to a Road which represents the road
-    // connecting two nodes. This is all precomputed and memory wise the program
-    // is doing fine. By already having this information then I don't need to
-    // do any computation to find the associated road with a node neighbour.
-    //
-    // then wee will also modify the road struct to include a colour. Where
-    // colour is just an interger 1,2,3 representing what colour to use.
-    // Use an enum to store the state values
-    Node* node;
-    // Road* road;  // so set this line in future
-    double weight;
-} Neighbour;
-
-/* struct that holds each node in the road network
- * pos: the coordinate position of the node
- * numNeighbours: the total number of neighbouring nodes
- * neighbours: an array containing node neighbour structs
- */
-typedef struct Node {
     Pos pos;
-    int numNeighbours;
-    Neighbour* neighbours;
+    Edge** edges;
+    int num_edges;
+
+    // additional data for the pathfinding state
+    // double h_cost;
+    // int visited;
+    // Edge* came_from;
 } Node;
 
-/* struct that holds road data. All roads are uniquely defined by their start 
- * and end nodes.
- * start: the node of the starting point of the road
- * end: the node of the end point of the road
- * pathCount: the number of elements in the path array
- * path: array of coordinate positions that define the road path
- */
+
 typedef struct {
-    Node start;
-    Node end;
-    int pathCount;
     Pos* path;
+    int pathCount;
 } Road;
+
+
+typedef struct Edge {
+    Node* start;
+    Node* end;
+    double weight;
+
+    Road* road;
+} Edge;
+
+
+typedef struct {
+    Node* nodes;
+    int num_nodes;
+
+    Edge* edges;
+    int num_edges;
+
+    Road* roads;
+    int num_roads;
+} Graph;
+
+//// forward decleration of Node
+//typedef struct Node Node;
+//
+///* struct used to hold node neighbours
+// * node: a pointer to the neighbouring node
+// * weight: the weight of that connection
+// */
+//typedef struct {
+//    // TODO: just had a good idea. I think that this neighbour struct should
+//    // additionally hold a pointer to a Road which represents the road
+//    // connecting two nodes. This is all precomputed and memory wise the program
+//    // is doing fine. By already having this information then I don't need to
+//    // do any computation to find the associated road with a node neighbour.
+//    //
+//    // then wee will also modify the road struct to include a colour. Where
+//    // colour is just an interger 1,2,3 representing what colour to use.
+//    // Use an enum to store the state values
+//    Node* node;
+//    // Road* road;  // so set this line in future
+//    double weight;
+//} Neighbour;
+//
+///* struct that holds each node in the road network
+// * pos: the coordinate position of the node
+// * numNeighbours: the total number of neighbouring nodes
+// * neighbours: an array containing node neighbour structs
+// */
+//typedef struct Node {
+//    Pos pos;
+//    int numNeighbours;
+//    Neighbour* neighbours;
+//} Node;
+//
+///* struct that holds road data. All roads are uniquely defined by their start 
+// * and end nodes.
+// * start: the node of the starting point of the road
+// * end: the node of the end point of the road
+// * pathCount: the number of elements in the path array
+// * path: array of coordinate positions that define the road path
+// */
+//typedef struct {
+//    Node start;
+//    Node end;
+//    int pathCount;
+//    Pos* path;
+//} Road;
 
 /* struct used to hold camera information */
 typedef struct {
@@ -112,5 +154,8 @@ typedef struct {
     Node start;
     Node end;
 } Pathfinder;
+
+
+
 
 #endif
