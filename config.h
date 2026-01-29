@@ -45,8 +45,11 @@ typedef struct Edge Edge;
 
 typedef struct {
     Pos pos;
-    Edge** edges;
+
     int num_edges;
+    int next_edge; // next edge to be populated
+                   //
+    Edge** edges;
 
     // additional data for the pathfinding state
     // double h_cost;

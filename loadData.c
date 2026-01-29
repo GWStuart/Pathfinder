@@ -6,6 +6,9 @@
 #include "loadData.h"
 #include "stringUtils.h"
 
+// can remove later
+#include "printUtils.h"
+
 #define MAX_BUFFER_SIZE 8192
 
 
@@ -40,32 +43,32 @@ char* extract_pos(char* string, Pos* pos) {
  * was not used.
  */
 char* populate_neighbours(char* string, Node* node, Node** nodes) {
-    string = split_string(string, '[');
-    char* remaining = split_string(string, '['); // cutoff remaining characters
-
-    // create the neighbours array
-    int numNeighbours = count_occurences(string, ',') + 1;
-    node->neighbours = malloc(sizeof(Neighbour) * numNeighbours);
-
-    char* newString;
-    int num;
-    for (int i = 0; i < numNeighbours-1; i++) {
-        newString = split_string(string, ',');
-        num = atoi(string);
-        node->neighbours[i].node = &((*nodes)[num]);
-        node->neighbours[i].weight = 1.24f; // TODO: do this later
-        string = newString;
-    }
-
-    // add the last node
-    num = atoi(string);
-    node->neighbours[numNeighbours - 1].node = &((*nodes)[num]);
-    node->neighbours[numNeighbours - 1].weight = 1.24f; // TODO: do this later
-
-    // record the number of neighbours
-    node->numNeighbours = numNeighbours;
-
-    return remaining;
+//*    string = split_string(string, '[');
+//*    char* remaining = split_string(string, '['); // cutoff remaining characters
+//*
+//*    // create the neighbours array
+//*    int numNeighbours = count_occurences(string, ',') + 1;
+//*    node->neighbours = malloc(sizeof(Neighbour) * numNeighbours);
+//*
+//*    char* newString;
+//*    int num;
+//*    for (int i = 0; i < numNeighbours-1; i++) {
+//*        newString = split_string(string, ',');
+//*        num = atoi(string);
+//*        node->neighbours[i].node = &((*nodes)[num]);
+//*        node->neighbours[i].weight = 1.24f; // TODO: do this later
+//*        string = newString;
+//*    }
+//*
+//*    // add the last node
+//*    num = atoi(string);
+//*    node->neighbours[numNeighbours - 1].node = &((*nodes)[num]);
+//*    node->neighbours[numNeighbours - 1].weight = 1.24f; // TODO: do this later
+//*
+//*    // record the number of neighbours
+//*    node->numNeighbours = numNeighbours;
+//*
+//*    return remaining;
 }
 
 
@@ -79,16 +82,24 @@ int load_nodes(char* filename, Node** nodes) {
     fgets(buffer, sizeof(buffer), file);
     int numNodes = atoi(buffer);
 
-    // generate the noes array
+    // generate the nodes array
     *nodes = (Node*)malloc(sizeof(Node) * numNodes);
 
     int i = 0;
     while (fgets(buffer, sizeof(buffer), file)) {
+        // extract and save the node position
         char* string = extract_pos(buffer, &(*nodes)[i].pos);
-        string = populate_neighbours(string, &(*nodes)[i], nodes);
-        //printf("%s", string); // TODO: probably don't need to return the string
-        // in future. The populate_neighbours function should be able to handle
-        // all of it.
+
+        // extract and save the number of connecting edges
+        int num_edges = atoi(string);
+        (*nodes)[i].num_edges = num_edges;
+
+        // initialise the next edge to 0
+        (*nodes)[i].next_edge = 0;
+
+        // setup the edges array
+        (*nodes)[i].edges = (Edge**)malloc(sizeof(Edge*) * num_edges);
+
         i++;
     }
 
@@ -127,7 +138,7 @@ void load_path(char* string, Road* road) {
 int load_roads(char* filename, Node* nodes, Road** roads) {
     FILE* file = fopen(filename, "r");
 
-    char buffer[8192];
+    char buffer[MAX_BUFFER_SIZE];
 
     // extract the number of roads specified by the file
     fgets(buffer, sizeof(buffer), file);
@@ -138,17 +149,7 @@ int load_roads(char* filename, Node* nodes, Road** roads) {
 
     int i = 0;
     while (fgets(buffer, sizeof(buffer), file)) {
-        char* string2 = split_string(buffer, ' ');
-        char* path = split_string(string2, ' ');
-
-        int startIndex = atoi(buffer);
-        int endIndex = atoi(string2);
-
-        (*roads)[i].start = nodes[startIndex];
-        (*roads)[i].end = nodes[endIndex];
-
-        // load the path
-        load_path(path, &(*roads)[i]);
+        load_path(buffer, &(*roads)[i]);
 
         i++;
     }

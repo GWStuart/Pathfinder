@@ -25,6 +25,7 @@
 
 // can remove this include later
 #include <sys/resource.h>
+#include <stdlib.h>
 
 // there are a few states in which the software can be.
 // STATE_SELECT_START --> select pathfinder start point
@@ -90,11 +91,13 @@ Node* get_closest_node(Pos pos, Node* nodes, int numNodes) {
 int main() {
     // load in the nodes array
     Node* nodes;
-    int numNodes = load_nodes("assets/data/Brisbane.nodes", &nodes);
+    int numNodes = load_nodes("assets/data/BrisbaneCentreV2.nodes", &nodes);
 
     // load the roads array
     Road* roads;
-    int numRoads = load_roads("assets/data/Brisbane.roads", nodes, &roads);
+    int numRoads = load_roads("assets/data/BrisbaneCentreV2.roads", nodes, &roads);
+
+    //exit(0); // TODO: obvisouly remove this line later
 
     // initialise SDL
     SDL_Init(SDL_INIT_VIDEO);

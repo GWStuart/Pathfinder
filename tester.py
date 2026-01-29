@@ -11,7 +11,7 @@ This file is only for personal testing.
 win = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Program Tester")
 
-SCALE = 1000
+SCALE = 3000
 
 class Node:
     def __init__(self, pos, edges, num_edges):
