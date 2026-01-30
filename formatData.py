@@ -49,6 +49,10 @@ number of roads but I left it here anyway).
 (note that the road_id is implied by the current element in the list. I.e. the
 first item in the edges array matches the first item in the roads array and so 
 forth).
+
+(another important node: each edge represents a two-way connection. When I
+actually load the edges in C I however count connections as one way and so I 
+effectively double the number of edges).
 """
 
 description = """

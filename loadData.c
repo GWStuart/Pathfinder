@@ -127,7 +127,7 @@ int load_edges(char* filename, Node* nodes, Road* roads, Edge** edges) {
 
     // extract the number of edges specified by the file
     fgets(buffer, sizeof(buffer), file);
-    int numEdges = atoi(buffer);
+    int numEdges = atoi(buffer) * 2;
 
     // generate the road array
     *edges = (Edge*)malloc(sizeof(Edge) * numEdges);
@@ -143,17 +143,27 @@ int load_edges(char* filename, Node* nodes, Road* roads, Edge** edges) {
         int to = atoi(part1);
         float weight = strtof(part2, NULL);
 
-        // populate the edge
-        (*edges)[i].start = nodes + from;
-        (*edges)[i].end = nodes + to;
-        (*edges)[i].weight = weight;
-        (*edges)[i].road = roads + i;
+        // populate the outbound edge
+        (*edges)[i*2].start  = nodes + from;
+        (*edges)[i*2].end    = nodes + to;
+        (*edges)[i*2].weight = weight;
+        (*edges)[i*2].road   = roads + i;
 
-        // add edge references
-        // TODO: i'm really not sure about this
+        // populate the inbound edge
+        (*edges)[i*2 + 1].start  = nodes + to;
+        (*edges)[i*2 + 1].end    = nodes + from;
+        (*edges)[i*2 + 1].weight = weight;
+        (*edges)[i*2 + 1].road   = roads + i;
+
+        // add outboound edge references
         Node* start = nodes + from;
-        start->edges[start->next_edge] = *edges + i;
+        start->edges[start->next_edge] = *edges + i*2;
         start->next_edge += 1;
+
+        // add inbound edge references
+        Node* end = nodes + to;
+        end->edges[end->next_edge] = *edges + i*2 + 1;
+        end->next_edge += 1;
 
         i++;
     }

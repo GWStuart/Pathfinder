@@ -230,7 +230,7 @@ int main() {
 
             SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
             for (int i=0; i<focus_node->next_edge; i++) {
-                draw_circle(renderer, camera, focus_node->edges[i]->end->pos, 3);
+                draw_road(renderer, camera, *focus_node->edges[i]->road);
             }
         }
 
