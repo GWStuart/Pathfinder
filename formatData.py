@@ -43,7 +43,10 @@ This file is used purely for road geometry
 # .edges file
 This is the file that ties everything together. Edges glue two nodes together
 and also contain information about the road that joins them.
-- Subsequent lines are formatted as: node_start_id node_end_id road_id weight
+- Subsequent lines are formatted as: node_start_id node_end_id weight
+(note that the road_id is implied by the current element in the list. I.e. the
+first item in the edges array matches the first item in the roads array and so 
+forth).
 
 (note that with the edges the number of edges is equal to the number of roads
 and so this number is only recorded in the .roads file)

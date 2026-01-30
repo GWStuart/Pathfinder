@@ -31,47 +31,6 @@ char* extract_pos(char* string, Pos* pos) {
     return num2String + endOfString + 1;
 }
 
-/* populate_neighbours()
- * ---------------------
- * populates a nodes neighbours array with pointer to all nodes that it is
- * connected to
- * string: the string from which the information is to be extracted
- * node: the node whose neighbours are to be populated
- * nodes: the full array of all nodes in the graph
- *
- * returns a char* pointing towards the remaining portion of  the string that
- * was not used.
- */
-char* populate_neighbours(char* string, Node* node, Node** nodes) {
-//*    string = split_string(string, '[');
-//*    char* remaining = split_string(string, '['); // cutoff remaining characters
-//*
-//*    // create the neighbours array
-//*    int numNeighbours = count_occurences(string, ',') + 1;
-//*    node->neighbours = malloc(sizeof(Neighbour) * numNeighbours);
-//*
-//*    char* newString;
-//*    int num;
-//*    for (int i = 0; i < numNeighbours-1; i++) {
-//*        newString = split_string(string, ',');
-//*        num = atoi(string);
-//*        node->neighbours[i].node = &((*nodes)[num]);
-//*        node->neighbours[i].weight = 1.24f; // TODO: do this later
-//*        string = newString;
-//*    }
-//*
-//*    // add the last node
-//*    num = atoi(string);
-//*    node->neighbours[numNeighbours - 1].node = &((*nodes)[num]);
-//*    node->neighbours[numNeighbours - 1].weight = 1.24f; // TODO: do this later
-//*
-//*    // record the number of neighbours
-//*    node->numNeighbours = numNeighbours;
-//*
-//*    return remaining;
-}
-
-
 // see header
 int load_nodes(char* filename, Node** nodes) {
     FILE* file = fopen(filename, "r");
@@ -135,7 +94,7 @@ void load_path(char* string, Road* road) {
 
 
 // see header
-int load_roads(char* filename, Node* nodes, Road** roads) {
+int load_roads(char* filename, Road** roads) {
     FILE* file = fopen(filename, "r");
 
     char buffer[MAX_BUFFER_SIZE];
@@ -159,3 +118,43 @@ int load_roads(char* filename, Node* nodes, Road** roads) {
 
     return numRoads;
 }
+
+// see header
+int load_edges(char* filename, Node* nodes, Road* roads, Edge** edges) {
+    FILE* file = fopen(filename, "r");
+
+    char buffer[MAX_BUFFER_SIZE];
+
+    // extract the number of edges specified by the file
+    fgets(buffer, sizeof(buffer), file);
+    int numEdges = atoi(buffer);
+
+    // generate the road array
+    *edges = (Edge*)malloc(sizeof(Edge) * numEdges);
+
+    int i = 0;
+    while (fgets(buffer, sizeof(buffer), file)) {
+        // extract the parts
+        char* part1 = split_string(buffer, ' ');
+        char* part2 = split_string(part1, ' ');
+
+        // convert data types
+        int from = atoi(buffer);
+        int to = atoi(part1);
+        float weight = strtof(part2, NULL);
+
+        // populate the edge
+        (*edges)[i].start = nodes + from;
+        (*edges)[i].end = nodes + to;
+        (*edges)[i].weight = weight;
+        (*edges)[i].road = roads + i;
+
+        i++;
+    }
+
+    // cleanup
+    fclose(file);
+
+    return numEdges;
+}
+

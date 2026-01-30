@@ -30,20 +30,6 @@ void print_node(Node node, bool newline) {
     }
 }
 
-
-void print_node_long(Node node) {
-//*    printf("Node(%lf, %lf, [", node.pos.x, node.pos.y);
-//*
-//*    // print information for each neighbour
-//*    for (int i = 0; i < node.numNeighbours; i++) {
-//*        Node* n = node.neighbours[i].node;
-//*        printf(" (%lf,%lf,w=%lf)", n->pos.x, n->pos.y, 
-//*                node.neighbours[i].weight);
-//*    }
-//*    printf(" ]\n");
-}
-
-
 void print_road(Road road, bool newline) {
     printf("Road (%d): ", road.pathCount);
 

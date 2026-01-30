@@ -67,7 +67,7 @@ typedef struct {
 typedef struct Edge {
     Node* start;
     Node* end;
-    double weight;
+    float weight;
 
     Road* road;
 } Edge;

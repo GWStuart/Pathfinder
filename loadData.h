@@ -27,6 +27,12 @@ int load_nodes(char* filename, Node** nodes);
  * filename: the filename to be loaded
  * nodes: pointer to where the nodes array should be stored
  */
-int load_roads(char* filename, Node* nodes, Road** roads);
+int load_roads(char* filename, Road** roads);
+
+/* loadd_roads()
+ * -------------
+ * loads all of the edge data from the given filename
+ */
+int load_edges(char* filename, Node* nodes, Road* roads, Edge** edges);
 
 #endif
