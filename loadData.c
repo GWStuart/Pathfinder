@@ -149,6 +149,12 @@ int load_edges(char* filename, Node* nodes, Road* roads, Edge** edges) {
         (*edges)[i].weight = weight;
         (*edges)[i].road = roads + i;
 
+        // add edge references
+        // TODO: i'm really not sure about this
+        Node* start = nodes + from;
+        start->edges[start->next_edge] = *edges + i;
+        start->next_edge += 1;
+
         i++;
     }
 

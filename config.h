@@ -73,6 +73,7 @@ typedef struct Edge {
 } Edge;
 
 
+// haven't used this yet but it might be useful in future
 typedef struct {
     Node* nodes;
     int num_nodes;

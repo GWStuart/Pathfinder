@@ -227,6 +227,11 @@ int main() {
                     display.renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a
             );
             draw_circle(renderer, camera, focus_node->pos, 5);
+
+            SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+            for (int i=0; i<focus_node->next_edge; i++) {
+                draw_circle(renderer, camera, focus_node->edges[i]->end->pos, 3);
+            }
         }
 
         // update the display
