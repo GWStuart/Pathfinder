@@ -43,15 +43,14 @@ This file is used purely for road geometry
 # .edges file
 This is the file that ties everything together. Edges glue two nodes together
 and also contain information about the road that joins them.
+- First line contains the number of edges (this should always be the same as the
+number of roads but I left it here anyway).
 - Subsequent lines are formatted as: node_start_id node_end_id weight
 (note that the road_id is implied by the current element in the list. I.e. the
 first item in the edges array matches the first item in the roads array and so 
 forth).
-
-(note that with the edges the number of edges is equal to the number of roads
-and so this number is only recorded in the .roads file)
-
 """
+
 description = """
 Tool used to process and extract road networks for openMap geojson data.
 """
@@ -186,6 +185,7 @@ num_connections = [0 for node in nodes]
 # save the edge data
 print(f"Saving edge data to {outputFile}.edges")
 with open(outputFile + ".edges", "w") as f:
+    f.write(f"{len(partitioned_roads)}\n")
     for road in partitioned_roads:
         from_node = nodes.index(road[0])
         to_node = nodes.index(road[-1])

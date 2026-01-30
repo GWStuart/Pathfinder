@@ -98,12 +98,10 @@ int main() {
     int numRoads = load_roads("assets/data/BrisbaneCentreV2.roads", &roads);
 
     // load the edges array
-//    Edge* edges;
-//    int numEdges = load_edges(
-//            "assets/data/BrisbaneCentreV2.edges", nodes, roads, &edges
-//    );
-
-//    exit(0); // TODO: obvisouly remove this line later
+    Edge* edges;
+    int numEdges = load_edges(
+            "assets/data/BrisbaneCentreV2.edges", nodes, roads, &edges
+    );
 
     // initialise SDL
     SDL_Init(SDL_INIT_VIDEO);
