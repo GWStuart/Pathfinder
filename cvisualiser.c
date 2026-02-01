@@ -30,16 +30,19 @@
 // there are a few states in which the software can be.
 // STATE_SELECT_START --> select pathfinder start point
 // STATE_SELECT_END   --> select pathfinder end point
+// STAE_HOLD          --> a waiting state before running the pathfinder
 // STATE_PATHFIND     --> running the pathfinder
 typedef enum {
     STATE_SELECT_START = 1,
     STATE_SELECT_END = 2,
-    STATE_PATHFIND = 3
+    STATE_HOLD = 3,
+    STATE_PATHFIND = 4
 } AppState;
 
 // define string constants
 const char* const MSG_START = "Select a starting point";
 const char* const MSG_END = "Select an end point";
+const char* const MSG_HOLD = "Press <space> to start";
 
 // temporary function used to check what the memory usage is.
 // this function can be removed in future
@@ -113,6 +116,7 @@ int main() {
     TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", FONT_SIZE);
     SDL_Texture* message_start = create_message(renderer, font, MSG_START);
     SDL_Texture* message_end = create_message(renderer, font, MSG_END);
+    SDL_Texture* message_hold = create_message(renderer, font, MSG_HOLD);
 
     // initialise the camera
     Camera camera = (Camera){0, 0, 1};
@@ -130,7 +134,7 @@ int main() {
     char fpsText[16];
 
     // important nodes
-    Node* focus_node;
+    Node* focus_node = nodes;
     Node* start_node;
     Node* end_node;
 
@@ -173,6 +177,9 @@ int main() {
                     if (state == STATE_SELECT_START) {
                         start_node = focus_node;
                         state = STATE_SELECT_END;
+                    } else if (state == STATE_SELECT_END) {
+                        end_node = focus_node;
+                        state = STATE_HOLD;
                     }
                 }
                 mouseDown = false;
@@ -242,7 +249,7 @@ int main() {
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
 
-        } else if (state = STATE_SELECT_END) {
+        } else if (state == STATE_SELECT_END) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             paint_neighbours(renderer, camera, start_node, 8);
             draw_circle(renderer, camera, start_node->pos, 4);
@@ -253,7 +260,19 @@ int main() {
 
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
-        }
+       } else if (state == STATE_HOLD) {
+            SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            paint_neighbours(renderer, camera, start_node, 8);
+            draw_circle(renderer, camera, start_node->pos, 4);
+
+
+            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            paint_neighbours(renderer, camera, end_node, 8);
+            draw_circle(renderer, camera, end_node->pos, 4);
+
+            SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            render_message(display.renderer, message_hold);
+       }
 
         // update the display
         SDL_RenderPresent(display.renderer);
