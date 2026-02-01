@@ -33,12 +33,13 @@
 // STATE_PATHFIND     --> running the pathfinder
 typedef enum {
     STATE_SELECT_START = 1,
-    STATE_SELECT_EEND = 2,
+    STATE_SELECT_END = 2,
     STATE_PATHFIND = 3
 } AppState;
 
 // define string constants
 const char* const MSG_START = "Select a starting point";
+const char* const MSG_END = "Select an end point";
 
 // temporary function used to check what the memory usage is.
 // this function can be removed in future
@@ -49,7 +50,7 @@ void print_memory_usage() {
 }
 
 void render_screen(Display display, Node* nodes, int numNodes, Road* roads, 
-        int numRoads, SDL_Texture* message, char* fpsText) {
+        int numRoads, char* fpsText) {
     // fill screen
     SDL_SetRenderDrawColor(display.renderer, BG.r, BG.g, BG.b, BG.a);
     SDL_RenderClear(display.renderer);
@@ -70,9 +71,6 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
 
     // render FPS count
     render_fps(display.renderer, fpsText);
-
-    // render the message
-    render_message(display.renderer, message);
 }
 
 Node* get_closest_node(Pos pos, Node* nodes, int numNodes) {
@@ -113,7 +111,8 @@ int main() {
 
     // setup fonts
     TTF_Font* font = TTF_OpenFont("assets/fonts/DejaVuSans.ttf", FONT_SIZE);
-    SDL_Texture* message = create_message(renderer, font, MSG_START);
+    SDL_Texture* message_start = create_message(renderer, font, MSG_START);
+    SDL_Texture* message_end = create_message(renderer, font, MSG_END);
 
     // initialise the camera
     Camera camera = (Camera){0, 0, 1};
@@ -130,11 +129,14 @@ int main() {
     int frameCounter = 0;
     char fpsText[16];
 
-    // node highlighting
+    // important nodes
     Node* focus_node;
+    Node* start_node;
+    Node* end_node;
 
     SDL_Event event;
     bool mouseDown = false; // keep track of mouse state
+    bool mouseMotion = false;
     
     // the initial state of the application
     int state = STATE_SELECT_START;
@@ -167,18 +169,29 @@ int main() {
                 mouseDown = true;
             }
             else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                if (!mouseMotion) { // this is a standard "click" event
+                    if (state == STATE_SELECT_START) {
+                        start_node = focus_node;
+                        state = STATE_SELECT_END;
+                    }
+                }
                 mouseDown = false;
+                mouseMotion = false;
             }
 
             // check for mouse motion
             else if (event.type == SDL_EVENT_MOUSE_MOTION) {
                 if (mouseDown) {
+                    mouseMotion = true;
                     camera.x -= event.motion.xrel / camera.zoom;
                     camera.y -= event.motion.yrel / camera.zoom;
                 } else {
                     Pos mouse = get_global(camera, event.motion.x, event.motion.y);
                     focus_node = get_closest_node(mouse, nodes, numNodes);
                 }
+            }
+            else if (event.type == SDL_EVENT_WINDOW_MOVED) {
+                mouseMotion = true;
             }
 
             // check for mouse wheel events
@@ -218,30 +231,27 @@ int main() {
             frameCounter = 0;
         }
 
-        render_screen(display, nodes, numNodes, roads, numRoads, message, 
-                fpsText);
+        // render the main screen
+        render_screen(display, nodes, numNodes, roads, numRoads, fpsText);
 
-        // highlight focussed nodes if needed
-        if (focus_node) {
-            SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
-            //SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+        // mode specific rendering
+        if (state == STATE_SELECT_START) {
+            SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            render_message(display.renderer, message_start);
+
             paint_neighbours(renderer, camera, focus_node, 8);
-//            for (int i=0; i<focus_node->num_edges; i++) {
-//                SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
-//                draw_road(renderer, camera, *focus_node->edges[i]->road);
-//
-//                for (int j=0; j<focus_node->edges[i]->end->num_edges; j++) {
-//                    draw_road(
-//                            renderer, 
-//                            camera, 
-//                            *focus_node->edges[i]->end->edges[j]->road
-//                    );
-//                }
-//            }
+            draw_circle(renderer, camera, focus_node->pos, 4);
 
-            SDL_SetRenderDrawColor(
-                    display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a
-            );
+        } else if (state = STATE_SELECT_END) {
+            SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            paint_neighbours(renderer, camera, start_node, 8);
+            draw_circle(renderer, camera, start_node->pos, 4);
+
+
+            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            render_message(display.renderer, message_end);
+
+            paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
         }
 

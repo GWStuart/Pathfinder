@@ -104,7 +104,6 @@ SDL_Texture* create_message(SDL_Renderer* renderer, TTF_Font* font,
 void render_message(SDL_Renderer* renderer, SDL_Texture* message) {
     SDL_FRect rect = (SDL_FRect){0, HEIGHT - message->h, message->w + PADDING*2, 
                        message->h};
-    SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
     SDL_RenderFillRect(renderer, &rect);
     rect = (SDL_FRect){PADDING, HEIGHT - message->h, message->w, message->h};
     SDL_RenderTexture(renderer, message, NULL, &rect);
