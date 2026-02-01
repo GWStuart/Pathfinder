@@ -119,4 +119,11 @@ void render_fps(SDL_Renderer* renderer, char* fpsText) {
     SDL_RenderDebugText(renderer, 5, 5, fpsText);
 }
 
+void paint_neighbours(SDL_Renderer* renderer, Camera camera, Node* node, int depth) {
+    if (depth == 0) return;
 
+    for (int i=0; i<node->num_edges; i++) {
+        paint_neighbours(renderer, camera, node->edges[i]->end, depth - 1);
+        draw_road(renderer, camera, *node->edges[i]->road);
+    }
+}

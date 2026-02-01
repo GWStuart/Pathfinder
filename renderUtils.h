@@ -50,4 +50,14 @@ void render_message(SDL_Renderer* renderer, SDL_Texture* message);
  */
 void render_fps(SDL_Renderer* renderer, char* fpsText);
 
+/* paint_neighbours()
+ * function used to highlight all neighbours of the given node. This function
+ * is run recursivly to colour neighbours of neighbours up to the given depth.
+ *
+ * (note that this function could be made more efficient as it does draw over
+ * itself however the impact on performance is low enough that I have not made
+ * it a priority to fix this).
+ */
+void paint_neighbours(SDL_Renderer* renderer, Camera camera, Node* node, int depth);
+
 #endif

@@ -223,15 +223,26 @@ int main() {
 
         // highlight focussed nodes if needed
         if (focus_node) {
-            SDL_SetRenderDrawColor(
-                    display.renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a
-            );
-            draw_circle(renderer, camera, focus_node->pos, 5);
+            SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            //SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
+            paint_neighbours(renderer, camera, focus_node, 8);
+//            for (int i=0; i<focus_node->num_edges; i++) {
+//                SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+//                draw_road(renderer, camera, *focus_node->edges[i]->road);
+//
+//                for (int j=0; j<focus_node->edges[i]->end->num_edges; j++) {
+//                    draw_road(
+//                            renderer, 
+//                            camera, 
+//                            *focus_node->edges[i]->end->edges[j]->road
+//                    );
+//                }
+//            }
 
-            SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
-            for (int i=0; i<focus_node->next_edge; i++) {
-                draw_road(renderer, camera, *focus_node->edges[i]->road);
-            }
+            SDL_SetRenderDrawColor(
+                    display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a
+            );
+            draw_circle(renderer, camera, focus_node->pos, 4);
         }
 
         // update the display
