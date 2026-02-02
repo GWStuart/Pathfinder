@@ -22,10 +22,14 @@
 #include "config.h"
 #include "renderUtils.h"
 #include "printUtils.h"
+#include "pathfinding.h"
 
 // can remove this include later
 #include <sys/resource.h>
 #include <stdlib.h>
+
+//#define DATA_LOCATION "assets/data/BrisbaneCentreV2"
+#define DATA_LOCATION "assets/data/romeSmallV2"
 
 // there are a few states in which the software can be.
 // STATE_SELECT_START --> select pathfinder start point
@@ -92,17 +96,15 @@ Node* get_closest_node(Pos pos, Node* nodes, int numNodes) {
 int main() {
     // load in the nodes array
     Node* nodes;
-    int numNodes = load_nodes("assets/data/BrisbaneCentreV2.nodes", &nodes);
+    int numNodes = load_nodes(DATA_LOCATION ".nodes", &nodes);
 
     // load the roads array
     Road* roads;
-    int numRoads = load_roads("assets/data/BrisbaneCentreV2.roads", &roads);
+    int numRoads = load_roads(DATA_LOCATION ".roads", &roads);
 
     // load the edges array
     Edge* edges;
-    int numEdges = load_edges(
-            "assets/data/BrisbaneCentreV2.edges", nodes, roads, &edges
-    );
+    int numEdges = load_edges(DATA_LOCATION ".edges", nodes, roads, &edges);
 
     // initialise SDL
     SDL_Init(SDL_INIT_VIDEO);
@@ -144,6 +146,16 @@ int main() {
     
     // the initial state of the application
     int state = STATE_SELECT_START;
+
+    // TEMPORARYYYY
+//    state  = STATE_HOLD;
+//    start_node = nodes;
+//    end_node = nodes + 26;
+
+    //dijkstra(nodes, numNodes, start_node);
+
+    //exit(0);
+    // TEMPORARYYYY
 
     bool run = true;
     while (run) {
@@ -248,7 +260,6 @@ int main() {
 
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
-
         } else if (state == STATE_SELECT_END) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             paint_neighbours(renderer, camera, start_node, 8);
