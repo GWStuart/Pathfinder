@@ -1,9 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "config.h"
 #include "math.h"
 #include "printUtils.h"
 #include "renderUtils.h"
-
-#include <stdio.h>
+#include "heap.h"
 
 // resets all node values 
 void reset_nodes(Node* nodes, int numNodes) {
@@ -14,33 +16,29 @@ void reset_nodes(Node* nodes, int numNodes) {
     }
 }
 
-void dijkstra(Node* nodes, int numNodes, Node* start) {
+void dijkstra(Node* nodes, int numNodes, Node* start, Node* target) {
     reset_nodes(nodes, numNodes);
 
+    MinHeap heap;
+    heap_init(&heap, 1024);
+
     start->g_cost = 0.0f;
+    heap_push(&heap, start, 0.0f);
 
-    while (1) {
+    while (!heap_empty(&heap)) {
 
-        // 1. Find unvisited node with smallest distance
-        Node* current = NULL;
-        float best = INFINITY;
+        HeapNode h = heap_pop(&heap);
+        Node* current = h.node;
 
-        for (int i = 0; i < numNodes; i++) {
-            if (!nodes[i].visited && nodes[i].g_cost < best) {
-                best = nodes[i].g_cost;
-                current = &nodes[i];
-            }
-        }
-
-        // No reachable nodes left
-        if (!current)
-            break;
+        if (current->visited)
+            continue;
 
         current->visited = 1;
 
-        // 2. Relax outgoing edges
-        for (int i = 0; i < current->num_edges; i++) {
+        if (current == target)
+            break;
 
+        for (int i = 0; i < current->num_edges; i++) {
             Edge* e = current->edges[i];
             Node* neighbor = e->end;
 
@@ -52,9 +50,12 @@ void dijkstra(Node* nodes, int numNodes, Node* start) {
             if (alt < neighbor->g_cost) {
                 neighbor->g_cost = alt;
                 neighbor->came_from = e;
+                heap_push(&heap, neighbor, alt);
             }
         }
     }
+
+    heap_free(&heap);
 }
 
 void print_path(Node* target) {

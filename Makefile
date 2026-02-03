@@ -6,7 +6,7 @@ CFLAGS += $(shell pkg-config --cflags sdl3 sdl3-ttf)
 LDFLAGS = $(shell pkg-config --libs sdl3 sdl3-ttf) -lm
 
 TARGET = vis
-OBJS = cvisualiser.o loadData.o renderUtils.o config.o stringUtils.o printUtils.o pathfinding.o
+OBJS = cvisualiser.o loadData.o renderUtils.o config.o stringUtils.o printUtils.o pathfinding.o heap.o
 
 .DEFAULT_GOAL := all
 

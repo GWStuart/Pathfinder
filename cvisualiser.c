@@ -105,7 +105,7 @@ int main() {
 
     // load the edges array
     Edge* edges;
-    int numEdges = load_edges(DATA_LOCATION ".edges", nodes, roads, &edges);
+    load_edges(DATA_LOCATION ".edges", nodes, roads, &edges);
 
     // initialise SDL
     SDL_Init(SDL_INIT_VIDEO);
@@ -183,7 +183,7 @@ int main() {
                     if (state == STATE_HOLD) {
                         // run the pathfinder
                         printf("Running Dijkstra's Algorithm\n");
-                        dijkstra(nodes, numNodes, start_node);
+                        dijkstra(nodes, numNodes, start_node, end_node);
 
                         state = STATE_END;
                     }

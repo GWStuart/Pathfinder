@@ -161,6 +161,16 @@ typedef struct {
 } Pathfinder;
 
 
+typedef struct {
+    Node* node;
+    float priority;
+} HeapNode;
+
+typedef struct {
+    HeapNode* data;
+    int size;
+    int capacity;
+} MinHeap;
 
 
 #endif
