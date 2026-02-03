@@ -2,6 +2,7 @@
 #define RENDER_UTILS_H
 
 #include "config.h"
+#include <SDL3_ttf/SDL_ttf.h>
 
 // convert a global coordinate to a local coordinate
 SDL_Point get_local(Camera camera, Pos pos);

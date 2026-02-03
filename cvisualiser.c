@@ -28,8 +28,8 @@
 #include <sys/resource.h>
 #include <stdlib.h>
 
-//#define DATA_LOCATION "assets/data/BrisbaneCentreV2"
-#define DATA_LOCATION "assets/data/romeSmallV2"
+#define DATA_LOCATION "assets/data/BrisbaneCentreV2"
+//#define DATA_LOCATION "assets/data/romeSmallV2"
 
 // there are a few states in which the software can be.
 // STATE_SELECT_START --> select pathfinder start point
@@ -40,7 +40,8 @@ typedef enum {
     STATE_SELECT_START = 1,
     STATE_SELECT_END = 2,
     STATE_HOLD = 3,
-    STATE_PATHFIND = 4
+    STATE_PATHFIND = 4,
+    STATE_END = 5
 } AppState;
 
 // define string constants
@@ -70,7 +71,7 @@ void render_screen(Display display, Node* nodes, int numNodes, Road* roads,
 
     // render the nodes
     if (display.showNodes) {
-        SDL_SetRenderDrawColor(display.renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+        SDL_SetRenderDrawColor(display.renderer, RED.r, RED.g, RED.b, RED.a);
         for (int i=0; i<numNodes; i++) {
             draw_point(display.renderer, *display.camera, nodes[i].pos);
         }
@@ -148,11 +149,11 @@ int main() {
     int state = STATE_SELECT_START;
 
     // TEMPORARYYYY
-//    state  = STATE_HOLD;
+//    state = STATE_HOLD + 1;
 //    start_node = nodes;
-//    end_node = nodes + 26;
-
-    //dijkstra(nodes, numNodes, start_node);
+//    end_node = nodes + 40;
+//
+//    dijkstra(nodes, numNodes, start_node);
 
     //exit(0);
     // TEMPORARYYYY
@@ -177,6 +178,15 @@ int main() {
                 }
                 if (event.key.key == SDLK_L) { // general log
                     printf("LOG: %f\n", camera.zoom);
+                }
+                if (event.key.key == SDLK_SPACE) {
+                    if (state == STATE_HOLD) {
+                        // run the pathfinder
+                        printf("Running Dijkstra's Algorithm\n");
+                        dijkstra(nodes, numNodes, start_node);
+
+                        state = STATE_END;
+                    }
                 }
             }
 
@@ -271,7 +281,7 @@ int main() {
 
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
-       } else if (state == STATE_HOLD) {
+        } else if (state == STATE_HOLD) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             paint_neighbours(renderer, camera, start_node, 8);
             draw_circle(renderer, camera, start_node->pos, 4);
@@ -283,7 +293,15 @@ int main() {
 
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             render_message(display.renderer, message_hold);
-       }
+        } else if (state == STATE_END) {
+            SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
+            draw_circle(renderer, camera, start_node->pos, 4);
+
+            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            draw_circle(renderer, camera, end_node->pos, 4);
+
+            paint_path(renderer, camera, end_node);
+        }
 
         // update the display
         SDL_RenderPresent(display.renderer);

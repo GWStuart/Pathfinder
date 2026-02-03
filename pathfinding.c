@@ -1,6 +1,7 @@
 #include "config.h"
 #include "math.h"
 #include "printUtils.h"
+#include "renderUtils.h"
 
 #include <stdio.h>
 
@@ -71,3 +72,15 @@ void print_path(Node* target) {
     }
 }
 
+void paint_path(SDL_Renderer* renderer, Camera camera, Node* target) {
+    SDL_SetRenderDrawColor(renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
+
+    Node* current = target;
+    while (current->came_from != NULL) {
+        Edge* e = current->came_from;
+
+        draw_road(renderer, camera, *e->road);
+
+        current = e->start;
+    }
+}
