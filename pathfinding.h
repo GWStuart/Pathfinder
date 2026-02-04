@@ -8,7 +8,7 @@
  * Basic implementation of the dijkstra search algorithm
  */
 //void dijkstra(Node* nodes, int numNodes, Node* start);
-void dijkstra(Node* nodes, int numNodes, Node* start, Node* target);
+void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* events);
 
 /* print_path()
  * ------------

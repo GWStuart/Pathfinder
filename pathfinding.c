@@ -6,6 +6,7 @@
 #include "printUtils.h"
 #include "renderUtils.h"
 #include "heap.h"
+#include "animation.h"
 
 // resets all node values 
 void reset_nodes(Node* nodes, int numNodes) {
@@ -16,7 +17,7 @@ void reset_nodes(Node* nodes, int numNodes) {
     }
 }
 
-void dijkstra(Node* nodes, int numNodes, Node* start, Node* target) {
+void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* events) {
     reset_nodes(nodes, numNodes);
 
     MinHeap heap;
@@ -42,8 +43,11 @@ void dijkstra(Node* nodes, int numNodes, Node* start, Node* target) {
             Edge* e = current->edges[i];
             Node* neighbor = e->end;
 
+
             if (neighbor->visited)
                 continue;
+
+            record_event(events, e, 0); // examined edge
 
             float alt = current->g_cost + e->weight;
 
@@ -51,6 +55,8 @@ void dijkstra(Node* nodes, int numNodes, Node* start, Node* target) {
                 neighbor->g_cost = alt;
                 neighbor->came_from = e;
                 heap_push(&heap, neighbor, alt);
+
+                record_event(events, e, 1); // successful edge
             }
         }
     }

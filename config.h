@@ -172,5 +172,15 @@ typedef struct {
     int capacity;
 } MinHeap;
 
+typedef struct {
+    Edge* edge;
+    int successful;   // 0 = examined, 1 = relaxed
+} RelaxEvent;
+
+typedef struct {
+    RelaxEvent* data;
+    int size;
+    int capacity;
+} EventList;
 
 #endif

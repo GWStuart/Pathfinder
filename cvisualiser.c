@@ -23,6 +23,7 @@
 #include "renderUtils.h"
 #include "printUtils.h"
 #include "pathfinding.h"
+#include "animation.h"
 
 // can remove this include later
 #include <sys/resource.h>
@@ -148,6 +149,9 @@ int main() {
     // the initial state of the application
     int state = STATE_SELECT_START;
 
+    EventList events;
+    init_event_list(&events);
+
     // TEMPORARYYYY
 //    state = STATE_HOLD + 1;
 //    start_node = nodes;
@@ -183,7 +187,7 @@ int main() {
                     if (state == STATE_HOLD) {
                         // run the pathfinder
                         printf("Running Dijkstra's Algorithm\n");
-                        dijkstra(nodes, numNodes, start_node, end_node);
+                        dijkstra(nodes, numNodes, start_node, end_node, &events);
 
                         state = STATE_END;
                     }
