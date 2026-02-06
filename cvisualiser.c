@@ -42,7 +42,7 @@ typedef enum {
     STATE_SELECT_END = 2,
     STATE_HOLD = 3,
     STATE_PATHFIND = 4,
-    STATE_END = 5
+    STATE_ANIMATE = 5,
 } AppState;
 
 // define string constants
@@ -149,18 +149,10 @@ int main() {
     // the initial state of the application
     int state = STATE_SELECT_START;
 
+    // animation stuff
     EventList events;
     init_event_list(&events);
-
-    // TEMPORARYYYY
-//    state = STATE_HOLD + 1;
-//    start_node = nodes;
-//    end_node = nodes + 40;
-//
-//    dijkstra(nodes, numNodes, start_node);
-
-    //exit(0);
-    // TEMPORARYYYY
+    int animation_index = 0;
 
     bool run = true;
     while (run) {
@@ -188,8 +180,7 @@ int main() {
                         // run the pathfinder
                         printf("Running Dijkstra's Algorithm\n");
                         dijkstra(nodes, numNodes, start_node, end_node, &events);
-
-                        state = STATE_END;
+                        state = STATE_ANIMATE;
                     }
                 }
             }
@@ -280,7 +271,7 @@ int main() {
             draw_circle(renderer, camera, start_node->pos, 4);
 
 
-            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
             render_message(display.renderer, message_end);
 
             paint_neighbours(renderer, camera, focus_node, 8);
@@ -291,20 +282,39 @@ int main() {
             draw_circle(renderer, camera, start_node->pos, 4);
 
 
-            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
             paint_neighbours(renderer, camera, end_node, 8);
             draw_circle(renderer, camera, end_node->pos, 4);
 
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             render_message(display.renderer, message_hold);
-        } else if (state == STATE_END) {
+        } else if (state == STATE_ANIMATE) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             draw_circle(renderer, camera, start_node->pos, 4);
 
-            SDL_SetRenderDrawColor(renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a);
+            SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
             draw_circle(renderer, camera, end_node->pos, 4);
 
-            paint_path(renderer, camera, end_node);
+            // add highlighted edges
+            float t;
+            for (int i = 0; i < animation_index && i < events.size; i++) {
+                t = (float)i / events.size;
+                SDL_SetRenderDrawColor(
+                        renderer, 
+                        GRAD_START[0] + t * (GRAD_END[0] - GRAD_START[0]),
+                        GRAD_START[1] + t * (GRAD_END[1] - GRAD_START[1]),
+                        GRAD_START[2] + t * (GRAD_END[2] - GRAD_START[2]),
+                        0xff
+                );
+                draw_road(renderer, camera, *events.data[i].edge->road);
+            }
+
+            if (animation_index >= events.size) {
+                paint_path(renderer, camera, end_node);
+            } else {
+                animation_index += 60; // can change animation speed here
+            }
+
         }
 
         // update the display

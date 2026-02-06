@@ -32,7 +32,9 @@ extern const SDL_Color WHITE;
 extern const SDL_Color RED;
 extern const SDL_Color BLUE;
 extern const SDL_Color YELLOW;
-extern const SDL_Color GREEN;
+extern const SDL_Color PURPLE;
+extern const int GRAD_START[3];
+extern const int GRAD_END[3];
 
 // holds a coordinate position
 typedef struct {
@@ -175,6 +177,8 @@ typedef struct {
 typedef struct {
     Edge* edge;
     int successful;   // 0 = examined, 1 = relaxed
+                      // (I don't actually use the "successful attribute
+                      // right now)
 } RelaxEvent;
 
 typedef struct {
