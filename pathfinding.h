@@ -17,6 +17,6 @@ void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* e
 void print_path(Node* target);
 
 
-void paint_path(SDL_Renderer* renderer, Camera camera, Node* target);
+void paint_path(SDL_Renderer* renderer, Camera camera, Node* target, SDL_Texture* tex);
 
 #endif

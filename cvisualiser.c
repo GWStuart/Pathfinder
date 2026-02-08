@@ -154,6 +154,9 @@ int main() {
     init_event_list(&events);
     int animation_index = 0;
 
+    // fancy shortest path rendering
+    SDL_Texture* glow_tex = create_glow_texture(renderer);
+
     bool run = true;
     while (run) {
         while (SDL_PollEvent(&event)) {
@@ -310,7 +313,7 @@ int main() {
             }
 
             if (animation_index >= events.size) {
-                paint_path(renderer, camera, end_node);
+                paint_path(renderer, camera, end_node, glow_tex);
             } else {
                 animation_index += 60; // can change animation speed here
             }

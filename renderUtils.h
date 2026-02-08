@@ -34,6 +34,13 @@ void draw_circle(SDL_Renderer* renderer, Camera camera, Pos pos, int r);
  */
 void draw_road(SDL_Renderer* renderer, Camera camera, Road road);
 
+// creates a glow texture thaat is used for the shortest path rendering
+SDL_Texture* create_glow_texture(SDL_Renderer *renderer);
+
+// thicker version of the draw using the given texture
+void draw_road_thick(SDL_Renderer* renderer, Camera camera, Road road, 
+        SDL_Texture* tex);
+
 /* create_message()
  * creates an SDL_Texture of the specfied message using the given font
  */

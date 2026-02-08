@@ -79,15 +79,23 @@ void print_path(Node* target) {
     }
 }
 
-void paint_path(SDL_Renderer* renderer, Camera camera, Node* target) {
+void paint_path(SDL_Renderer* renderer, Camera camera, Node* target, 
+        SDL_Texture* tex) {
     SDL_SetRenderDrawColor(renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
+
+    SDL_SetTextureAlphaMod(tex, 200); // 0 is invisible, 255 is solid
+                                      
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_ADD);
 
     Node* current = target;
     while (current->came_from != NULL) {
         Edge* e = current->came_from;
 
-        draw_road(renderer, camera, *e->road);
+        draw_road_thick(renderer, camera, *e->road, tex);
+        //draw_road(renderer, camera, *e->road);
 
         current = e->start;
     }
+
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
 }

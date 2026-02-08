@@ -1,5 +1,6 @@
 #include "config.h"
 #include <SDL3_ttf/SDL_ttf.h>
+#include "math.h"
 
 /* ###############################################
  *
@@ -87,6 +88,66 @@ void draw_road(SDL_Renderer* renderer, Camera camera, Road road) {
         points[i] = get_local_float(camera, road.path[i]);
     }
     SDL_RenderLines(renderer, points, road.pathCount);
+}
+
+SDL_Texture* create_glow_texture(SDL_Renderer *renderer) {
+    const int size = 16;
+    const float center = size / 2.0f;
+
+    SDL_Surface* surface = SDL_CreateSurface(size, size, SDL_PIXELFORMAT_RGBA32);
+
+    Uint32* pixels = (Uint32*)surface->pixels;
+
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            float dx = (float)x + 0.5f - center;
+            float dy = (float)y + 0.5f - center;
+            float dist = sqrtf(dx*dx + dy*dy) / (size / 2.0f);
+
+            Uint8 alpha = 0;
+            if (dist < 1.0f) {
+                // quadratic falloff glow
+                alpha = (Uint8)((1.0f - dist) * (1.0f - dist) * 255);
+            }
+
+            pixels[y * size + x] = SDL_MapRGBA(SDL_GetPixelFormatDetails(surface->format), NULL, 255, 255, 255, alpha);
+        }
+    }
+
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_DestroySurface(surface);
+    return tex;
+}
+
+// draws a thick version of the road
+// not the best but looks better than a simple line
+void draw_road_thick(SDL_Renderer* renderer, Camera camera, Road road, 
+        SDL_Texture* tex) {
+    if (road.pathCount <= 1) {
+        return;
+    }
+
+    SDL_FPoint current = get_local_float(camera, road.path[0]);
+    for (int i=0; i<road.pathCount - 1; i++) {
+        SDL_FPoint next = get_local_float(camera, road.path[i + 1]);
+
+        float dx = next.x - current.x;
+        float dy = next.y - current.y;
+        float dist = sqrt(dx*dx + dy*dy);
+
+        for (float d=0; d<dist; d+=2.0f) {
+            float t = d / dist;
+            int draw_x = current.x + (int)(t * dx);
+            int draw_y = current.y + (int)(t * dy);
+
+            SDL_FRect rect = {draw_x - 4, draw_y - 4, 8, 8};
+            SDL_RenderTexture(renderer, tex, NULL, &rect);
+        }
+
+        current = next;
+    }
+
 }
 
 // Creates a new message texture
