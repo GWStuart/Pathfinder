@@ -37,13 +37,19 @@
 // STATE_SELECT_END   --> select pathfinder end point
 // STAE_HOLD          --> a waiting state before running the pathfinder
 // STATE_PATHFIND     --> running the pathfinder
-typedef enum {
+enum {
     STATE_SELECT_START = 1,
     STATE_SELECT_END = 2,
     STATE_HOLD = 3,
     STATE_PATHFIND = 4,
     STATE_ANIMATE = 5,
-} AppState;
+};
+
+// specify the algorithm that is to be used
+enum {
+    ALG_DIJKSTRA = 1,
+    ALG_A_STAR = 2,
+};
 
 // define string constants
 const char* const MSG_START = "Select a starting point";
@@ -149,6 +155,9 @@ int main() {
     // the initial state of the application
     int state = STATE_SELECT_START;
 
+    // the pathfinding algorithm to be used
+    int algorithm = ALG_DIJKSTRA;
+
     // animation stuff
     EventList events;
     init_event_list(&events);
@@ -181,8 +190,15 @@ int main() {
                 if (event.key.key == SDLK_SPACE) {
                     if (state == STATE_HOLD) {
                         // run the pathfinder
-                        printf("Running Dijkstra's Algorithm\n");
-                        dijkstra(nodes, numNodes, start_node, end_node, &events);
+
+                        if (algorithm == ALG_DIJKSTRA) {
+                            printf("Running Dijkstra's Algorithm\n");
+                            dijkstra(nodes, numNodes, start_node, end_node, &events);
+                        } else if (algorithm == ALG_A_STAR) {
+                            printf("Running A* Algorithm\n");
+                            a_star(nodes, numNodes, start_node, end_node, &events);
+                        }
+
                         state = STATE_ANIMATE;
                     }
                 }

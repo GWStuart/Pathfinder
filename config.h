@@ -55,7 +55,9 @@ typedef struct {
     Edge** edges;
 
     // additional data for the pathfinding state
-    double g_cost; // actual distance travelled
+    float g_cost; // actual distance travelled
+    float h_cost;
+    float f_cost;
     int visited;
     Edge* came_from;
 } Node;

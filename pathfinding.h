@@ -10,6 +10,9 @@
 //void dijkstra(Node* nodes, int numNodes, Node* start);
 void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* events);
 
+// the a_star pathfinding algorithm
+void a_star(Node* nodes, int numNodes, Node* start, Node* target, EventList* events);
+
 /* print_path()
  * ------------
  * Traces back the path from the target node

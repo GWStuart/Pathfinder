@@ -64,6 +64,78 @@ void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* e
     heap_free(&heap);
 }
 
+// the heuristic is a simple Euclidian distance
+float calculate_heuristic(Node* node, Node* end) {
+    float dx = node->pos.x - end->pos.x;
+    float dy = node->pos.y - end->pos.y;
+    return sqrtf(dx * dx + dy * dy) * 1000;
+    /*
+     * the multiplying by 1000 here is needed because the h_cost would otherwise
+     * be too small to outweight the g_costs. I don't really like the use of
+     * this constant here as I do find it quite arbirary and so I hope that the
+     * choice of 1000 works consistently on different maps but if it does happen
+     * that A* is not performing properly then consider changing its value.
+     *
+     * (to know what a reaosnable value is just print out the g and h costs of
+     * several nodes to ensure that there is not one value that is disproportionatly
+     * outbalancing the other).
+     */
+}
+
+void a_star(Node* nodes, int numNodes, Node* start, Node* target, EventList* events) {
+    reset_nodes(nodes, numNodes);
+
+    MinHeap heap;
+    heap_init(&heap, 1024);
+
+    start->g_cost = 0.0f;
+    start->h_cost = calculate_heuristic(start, target);
+    start->f_cost = start->g_cost + start->h_cost;
+
+    heap_push(&heap, start, start->f_cost);
+
+    while (!heap_empty(&heap)) {
+
+        HeapNode h = heap_pop(&heap);
+        Node* current = h.node;
+
+        if (current->visited)
+            continue;
+
+        current->visited = 1;
+
+        if (current == target)
+            break;
+
+        for (int i = 0; i < current->num_edges; i++) {
+            Edge* e = current->edges[i];
+            Node* neighbor = e->end;
+
+
+            if (neighbor->visited) continue;
+
+            record_event(events, e, 0); // examined edge
+
+            float tentative_g = current->g_cost + e->weight;
+
+            if (tentative_g < neighbor->g_cost) {
+
+                neighbor->g_cost = tentative_g;
+                neighbor->h_cost = calculate_heuristic(neighbor, target);
+                neighbor->f_cost = neighbor->g_cost + neighbor->h_cost;
+
+                neighbor->came_from = e;
+
+                heap_push(&heap, neighbor, neighbor->f_cost);
+                record_event(events, e, 1); // successful edge
+            }
+        }
+    }
+
+    heap_free(&heap);
+}
+
+
 void print_path(Node* target) {
     Node* current = target;
 
