@@ -49,4 +49,33 @@ Within this github repository I already provide the processed data for the Brisb
 ./vis assets/data/BrisbaneCentre
 ```
 
-To load your own custom road network you need to download OpenMap data for a particular region as a GeoJson file and then processing it using the formatData.py script. I will add more details on how to do this in future. 
+To load your own custom road network you need to download OpenMap data for a particular region as a `.geojson` file. In OpenMaps the road data is stored under the `highway` key (although this also includes certain road types such as foot paths and crossings which you may want to filter out). 
+
+The way I suggest downloading the data is using [QGIS](https://qgis.org) and the `QuickOSM` plugin.
+1. Download QGIS and install the plugin `QuickOSM`
+2. On the left pannel in QGIS expand the `XYZ Tiles` section which should reveal an item called `OpenStreetMap`
+3. Drag and drop `OpenStreetMap` into the layers pannel in QGIS (you should now see a map in the main window).
+4. Zoom into the area that you want to download.
+5. To specify the exact region to download the best way is to make a layer for it. Go `layer -> Create Layer -> New Temporary Scratch Layer`. Choose "polygon" as the geometry type.
+6. Then select the layer on the layers pannel and ensure that editing is toggled. When toggled you should see an option in the top bar to "add polygon".
+7. Click on the add polygon and trace out the region to be downloaded. Simply click to add points to the polygon and right click when done.
+8. After completing the region remember to toggle editing back off.
+9. Then open up the QuickOSM window (its icon is a magnifying glass on a green background).
+10. Choose "QuickQuery" and under the key type `highway`. Then choose `Layer Extent` for the download region and specify the scratch layer that you created.
+11. Then press "runQuery" and wait for it to complete.
+12. You can now untoggle most layers apart from the highway data.
+13. The highway data can contain features that you may not be interested in and so these can be filtered out. Right click on the layer and press filter. See the filter that I use personally below which you can paste directly into QGIS.
+14. Right click on the layer and export to save. Save it as a GeoJSON file.
+15. The GeoJSON file then needs to be preprocessed using `formatData.py` file. To do this use the following command: `python formatData.py PATH_TO_GEOJSON_FILE`
+16. Assuming that this runs successfully you should now have `.nodes`, `.roads` and `.edges` files.
+17. This is now ready to be loaded in with `./vis`
+
+Custom QGIS highway filter that I use:
+```
+NOT "highway" = 'pedestrian' AND
+NOT "highway" = 'footway' AND
+NOT "highway" = 'steps' AND
+NOT "highway" = 'tertiary_link' AND
+NOT "highway" = 'crossing' AND
+NOT "highway" = 'corridor'
+```
