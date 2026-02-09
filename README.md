@@ -3,9 +3,12 @@ A pathfined project using real world road data and written entierly in C.
 
 Program implements Dijkstra's Algorithm and A* search optimised to run efficiently on large real world road networks with tens of thousands of nodes.
 
-See below an image of the programming loading Brisbane City road data.
+See below an low quality gif of the program on Brisbane City road data.
 
-<img width="400" alt="BrisbaneRoadVisualised" src="https://github.com/user-attachments/assets/44368ac8-3f35-45a4-8059-bc6f6abf538b" />
+![demo](https://github.com/user-attachments/assets/2ab308f1-5394-4748-9d49-4cbee6137267)
+
+
+
 
 ## Features
 This project implements the following features:
@@ -79,3 +82,8 @@ NOT "highway" = 'tertiary_link' AND
 NOT "highway" = 'crossing' AND
 NOT "highway" = 'corridor'
 ```
+
+## Other Photos
+
+<img width="400" alt="BrisbaneRoadVisualised" src="https://github.com/user-attachments/assets/44368ac8-3f35-45a4-8059-bc6f6abf538b" />
+
