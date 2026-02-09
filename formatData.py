@@ -75,8 +75,6 @@ if args.output:
 else:
     outputFile = inputFile[:inputFile.index(".")]
 
-outputFile += "V2"
-
 # open the file to be read from
 try:
     with open(inputFile) as f:
