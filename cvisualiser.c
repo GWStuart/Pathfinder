@@ -29,9 +29,6 @@
 #include <sys/resource.h>
 #include <stdlib.h>
 
-#define DATA_LOCATION "assets/data/BrisbaneCentreV2"
-//#define DATA_LOCATION "assets/data/romeSmallV2"
-
 // there are a few states in which the software can be.
 // STATE_SELECT_START --> select pathfinder start point
 // STATE_SELECT_END   --> select pathfinder end point
@@ -101,25 +98,63 @@ Node* get_closest_node(Pos pos, Node* nodes, int numNodes) {
     return min_node;
 }
 
-int main() {
+// concatenates the two strings
+// result should be freed after use
+char* join_string(const char* str1, const char* str2) {
+    int len = strlen(str1) + strlen(str2) + 1;
+    char* result = malloc(len);
+
+    snprintf(result, len, "%s%s", str1, str2);
+    return result;
+}
+
+int main(int argc, char** argv) {
+    // process arguments
+    if (argc < 2) {
+        printf("Must provide the file to be loaded. See README.\n");
+        exit(1);
+    }
+
+    int width = WIDTH;
+    int height = HEIGHT;
+    int algorithm = ALG_DIJKSTRA;  // the pathfinding algorithm to be used
+    for (int i=2; i<argc; i+=2) {
+        if (strcmp(argv[i], "-w") == 0) {
+            width = atoi(argv[i+1]);
+        }
+        else if (strcmp(argv[i], "-h") == 0) {
+            height = atoi(argv[i+1]);
+        }
+        else if (strcmp(argv[i], "--alg") == 0) {
+            if (strcmp(argv[i+1], "astar") == 0) {
+                algorithm = ALG_A_STAR;
+            } else if (strcmp(argv[i+1], "dijkstra") == 0) {
+                algorithm = ALG_DIJKSTRA;
+            }
+        }
+    }
+
     // load in the nodes array
     Node* nodes;
-    int numNodes = load_nodes(DATA_LOCATION ".nodes", &nodes);
+    char* file = join_string(argv[1], ".nodes");
+    int numNodes = load_nodes(file, &nodes);
 
     // load the roads array
     Road* roads;
-    int numRoads = load_roads(DATA_LOCATION ".roads", &roads);
+    file = join_string(argv[1], ".roads");
+    int numRoads = load_roads(file, &roads);
 
     // load the edges array
     Edge* edges;
-    load_edges(DATA_LOCATION ".edges", nodes, roads, &edges);
+    file = join_string(argv[1], ".edges");
+    load_edges(file, nodes, roads, &edges);
 
     // initialise SDL
     SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
 
     // setup window
-    SDL_Window* window = SDL_CreateWindow("Pathfinder", WIDTH, HEIGHT, 0);
+    SDL_Window* window = SDL_CreateWindow("Pathfinder", width, height, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
 
     // setup fonts
@@ -154,9 +189,6 @@ int main() {
     
     // the initial state of the application
     int state = STATE_SELECT_START;
-
-    // the pathfinding algorithm to be used
-    int algorithm = ALG_DIJKSTRA;
 
     // animation stuff
     EventList events;
@@ -213,9 +245,11 @@ int main() {
                     if (state == STATE_SELECT_START) {
                         start_node = focus_node;
                         state = STATE_SELECT_END;
+                        printf("Start node has been selected\n");
                     } else if (state == STATE_SELECT_END) {
                         end_node = focus_node;
                         state = STATE_HOLD;
+                        printf("End node has been selected\n");
                     }
                 }
                 mouseDown = false;

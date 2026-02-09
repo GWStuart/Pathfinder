@@ -61,6 +61,12 @@ void dijkstra(Node* nodes, int numNodes, Node* start, Node* target, EventList* e
         }
     }
 
+    if (heap_empty(&heap)) {
+        printf("\n===============================================\n");
+        printf("No path could be found between the two given nodes\n");
+        printf("===============================================\n\n");
+    }
+
     heap_free(&heap);
 }
 
