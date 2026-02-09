@@ -1,4 +1,6 @@
 # Pathfinder
+<img width="1465" height="498" alt="BrisbanePano" src="https://github.com/user-attachments/assets/29a23142-b922-49d5-bf72-286a3f15724e" />
+
 A pathfined project using real world road data and written entierly in C. 
 
 Program implements Dijkstra's Algorithm and A* search optimised to run efficiently on large real world road networks with tens of thousands of nodes.
