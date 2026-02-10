@@ -234,6 +234,12 @@ int main(int argc, char** argv) {
                         state = STATE_ANIMATE;
                     }
                 }
+                if (event.key.key == SDLK_ESCAPE) {
+                    free_event_list(&events);
+                    init_event_list(&events);
+                    animation_index = 0;
+                    state = STATE_SELECT_START;
+                }
             }
 
             // check for mouse clicks
@@ -314,7 +320,7 @@ int main(int argc, char** argv) {
         // mode specific rendering
         if (state == STATE_SELECT_START) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
-            render_message(display.renderer, message_start);
+            render_message(display.renderer, message_start, height);
 
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
@@ -325,7 +331,7 @@ int main(int argc, char** argv) {
 
 
             SDL_SetRenderDrawColor(renderer, PURPLE.r, PURPLE.g, PURPLE.b, PURPLE.a);
-            render_message(display.renderer, message_end);
+            render_message(display.renderer, message_end, height);
 
             paint_neighbours(renderer, camera, focus_node, 8);
             draw_circle(renderer, camera, focus_node->pos, 4);
@@ -340,7 +346,7 @@ int main(int argc, char** argv) {
             draw_circle(renderer, camera, end_node->pos, 4);
 
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
-            render_message(display.renderer, message_hold);
+            render_message(display.renderer, message_hold, height);
         } else if (state == STATE_ANIMATE) {
             SDL_SetRenderDrawColor(renderer, BLUE.r, BLUE.g, BLUE.b, BLUE.a);
             draw_circle(renderer, camera, start_node->pos, 4);

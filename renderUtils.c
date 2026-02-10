@@ -162,11 +162,11 @@ SDL_Texture* create_message(SDL_Renderer* renderer, TTF_Font* font,
 
 // Renders a given message texture to the message region of the screen in the
 // lower left corner.
-void render_message(SDL_Renderer* renderer, SDL_Texture* message) {
-    SDL_FRect rect = (SDL_FRect){0, HEIGHT - message->h, message->w + PADDING*2, 
+void render_message(SDL_Renderer* renderer, SDL_Texture* message, int height) {
+    SDL_FRect rect = (SDL_FRect){0, height - message->h, message->w + PADDING*2, 
                        message->h};
     SDL_RenderFillRect(renderer, &rect);
-    rect = (SDL_FRect){PADDING, HEIGHT - message->h, message->w, message->h};
+    rect = (SDL_FRect){PADDING, height - message->h, message->w, message->h};
     SDL_RenderTexture(renderer, message, NULL, &rect);
 }
 

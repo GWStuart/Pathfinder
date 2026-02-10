@@ -42,6 +42,7 @@ Most other features within the program itself are quite self explanatory but her
 - Toggle node rendering with the `n` key
 - Click to select the pathfinding start and end nodes
 - Press space to then run the pathfinder
+- Restart with the `<ESCAPE>` key
 
 ## Loading Other City Data
 Within this github repository I already provide the processed data for the Brisbane City centre. To load this data use the following command,

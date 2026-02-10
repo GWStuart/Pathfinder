@@ -50,7 +50,7 @@ SDL_Texture* create_message(SDL_Renderer* renderer, TTF_Font* font,
 /* render_message()
  * renders thee given message texture to the bottom left of the screen
  */
-void render_message(SDL_Renderer* renderer, SDL_Texture* message);
+void render_message(SDL_Renderer* renderer, SDL_Texture* message, int height);
 
 /* render_fps()
  * a helpful utility  function to render the current fps in the corner as
